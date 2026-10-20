@@ -1,5 +1,5 @@
-import { OrcaClient } from '../plugin/plugin/orca-client.js';
+import { OrcaFleet } from '../plugin/plugin/orca-fleet.js';
 import { publicProject } from '../plugin/plugin/project-state.js';
-const client = new OrcaClient({ environment: process.env.ORCA_PLUGIN_ENVIRONMENT || '' });
+const client = new OrcaFleet();
 const data = await client.projects();
-console.log(JSON.stringify({ projects: data.worktrees.map(publicProject), hostScope: data.hostScope }, null, 2));
+console.log(JSON.stringify({ projects: data.worktrees.map(publicProject), warnings: data.warnings, environmentCount: data.environmentCount }, null, 2));

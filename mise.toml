@@ -31,3 +31,8 @@ run = "mise exec -- node scripts/probe.mjs"
 description = "Copy the built plugin into Ulanzi Studio (macOS)"
 depends = ["build"]
 run = "mise exec -- node scripts/install.mjs"
+
+[tasks.update]
+description = "Back up and update the installed Orca plugin"
+depends = ["build"]
+run = "mise exec -- node scripts/install.mjs --update"

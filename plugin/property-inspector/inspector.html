@@ -17,14 +17,12 @@
   <script src="../libs/js/ulanziApi.js"></script>
 </head>
 <body>
-  <h3>Orca 项目</h3>
-  <label>项目<select id="project"><option value="">请选择项目</option></select></label>
-  <label>按键名称（可选）<input id="label" maxlength="22" placeholder="默认使用项目名称"></label>
-  <label>Orca 环境（留空为本机）<input id="environment" placeholder="例如 macbook-home"></label>
+  <h3 id="heading">Orca 工作区</h3>
   <label>Orca CLI 路径<input id="cliPath" placeholder="/Applications/Orca.app/Contents/Resources/bin/orca"></label>
   <button id="refresh" type="button">刷新项目</button>
   <p id="status" role="status">正在连接插件…</p>
-  <small>按下项目键会跳到对应终端。多个 Agent 时优先选择需要确认的 Agent，其次是工作中的 Agent。约每 2.5 秒刷新状态。</small>
+  <p id="occupant" style="white-space: pre-wrap"></p>
+  <small>拖几个按钮就启用几个位置，按设备上从左到右、从上到下自动排序，无需设置编号。自动汇总 Orca 全部环境中的 worktree，按下跳到对应终端。</small>
   <script src="inspector.js"></script>
 </body>
 </html>
