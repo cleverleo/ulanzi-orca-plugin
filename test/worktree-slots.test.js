@@ -72,7 +72,7 @@ test('fleet auto-discovers all saved environments, preserves unavailable occupan
       args[1] === 'list' ? { terminals: [{ worktreeId: b.worktreeId, handle: 'remote-terminal' }] } : { switched: true };
     return { stdout: JSON.stringify({ ok: true, result }) };
   };
-  const fleet = new OrcaFleet({ run });
+  const fleet = new OrcaFleet({ run, reveal: async () => true });
   const first = await fleet.projects();
   assert.equal(first.worktrees.length, 2);
   const remote = first.worktrees.find(p => p.environmentId === 'remote');

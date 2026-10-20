@@ -170,9 +170,9 @@ api.onSendToPlugin(message => {
   if (settings) schedulePoll(source(settings));
 });
 api.onRun(async message => {
-  if (pressed.has(message.context)) return;
   const settings = keys.get(message.context);
-  if (!settings || settings.active === false) return;
+  diagnostic({ lastPress: { at: Date.now(), key: message.key, slot: settings?.slot, stage: pressed.has(message.context) ? 'busy' : !settings ? 'unregistered' : settings.active === false ? 'inactive' : 'received' } });
+  if (pressed.has(message.context) || !settings || settings.active === false) return;
   pressed.add(message.context);
   try {
     const data = source(settings);
@@ -183,8 +183,13 @@ api.onRun(async message => {
     const project = slotProject(data, settings.slot);
     if (!project) throw new Error(format(`坑位 ${settings.slot} 暂无运行中的 worktree`, `No running worktree in slot ${settings.slot}`));
     if (!expectedKey || expectedKey !== projectKey(project)) throw new Error(t('坑位已更新，请查看按键后再按一次'));
-    await data.client.switchProject(project);
-  } catch (error) { api.toast(error.message); api.showAlert(message.context); }
+    diagnostic({ lastPress: { at: Date.now(), key: message.key, slot: settings.slot, stage: 'switching', remote: !!project.environmentId } });
+    const result = await data.client.switchProject(project);
+    diagnostic({ lastPress: { at: Date.now(), key: message.key, slot: settings.slot, stage: 'switched', navigated: result?.focus?.navigated } });
+  } catch (error) {
+    diagnostic({ lastPress: { at: Date.now(), key: message.key, slot: settings.slot, stage: 'failed', error: error.message } });
+    api.toast(error.message); api.showAlert(message.context);
+  }
   finally { pressed.delete(message.context); }
 });
 

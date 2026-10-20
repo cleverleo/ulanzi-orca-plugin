@@ -1,16 +1,27 @@
-import { t } from './i18n.js';
+import { t, format } from './i18n.js';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
 import { chooseTerminal } from './project-state.js';
 
 const execute = promisify(execFile);
 export const defaultCli = '/Applications/Orca.app/Contents/Resources/bin/orca';
 
+async function revealOnDesktop(cliPath, environment, terminal) {
+  const env = { ...process.env };
+  for (const key of Object.keys(env)) if (key.startsWith('ORCA_')) delete env[key];
+  const { stdout } = await execute(process.execPath, [fileURLToPath(new URL('./orca-reveal-worker.cjs', import.meta.url)),
+    cliPath, environment, terminal.worktreeId, terminal.tabId, terminal.leafId || ''],
+  { env, timeout: 12000, maxBuffer: 65536 });
+  return JSON.parse(stdout).navigated === true;
+}
+
 export class OrcaClient {
-  constructor({ cliPath = defaultCli, environment = '', run = execute } = {}) {
+  constructor({ cliPath = defaultCli, environment = '', run = execute, reveal = revealOnDesktop } = {}) {
     this.cliPath = cliPath;
     this.environment = environment.trim();
     this.run = run;
+    this.reveal = reveal;
   }
 
   async call(args) {
@@ -42,10 +53,19 @@ export class OrcaClient {
   }
 
   async switchProject(project) {
-    const result = await this.call(['terminal', 'list', '--worktree', `id:${project.worktreeId}`, '--limit', '1000']);
-    const terminal = chooseTerminal(result.terminals ?? [], project);
+    const listing = await this.call(['terminal', 'list', '--worktree', `id:${project.worktreeId}`, '--limit', '1000']);
+    const terminal = chooseTerminal(listing.terminals ?? [], project);
     if (!terminal) throw new Error(t('项目没有可跳转的终端，请先在 Orca 打开终端'));
     // Handles are resolved immediately before use; never persist them in settings.
-    return this.call(['terminal', 'switch', '--terminal', terminal.handle]);
+    const result = await this.call(['terminal', 'switch', '--terminal', terminal.handle]);
+    // A GUI on the remote Mac can report navigated:true without revealing this desktop.
+    if (this.environment) {
+      let navigated = false;
+      try { navigated = await this.reveal(this.cliPath, this.environment, terminal); } catch { /* Report local reveal failure below. */ }
+      if (!navigated) throw new Error(format('无法在本机 Orca 显示远程终端，请确认该环境已连接', 'Cannot reveal remote terminal on this desktop. Check the Orca environment connection.'));
+      return { ...result, focus: { ...result.focus, navigated: true, desktop: true } };
+    }
+    if (result?.focus?.navigated === false) throw new Error(format('Orca 未完成终端跳转，请重试', 'Orca did not navigate to the terminal. Try again.'));
+    return result;
   }
 }

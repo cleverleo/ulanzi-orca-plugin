@@ -27,7 +27,7 @@ test('public status omits prompts, terminal output and tool arguments', () => {
 test('CLI uses argument arrays, remote routing and fresh terminal handles', async () => {
   const calls = [];
   const project = { worktreeId: 'repo::/path with spaces', hostId: 'local' };
-  const client = new OrcaClient({ environment: 'home', run: async (file, args, options) => {
+  const client = new OrcaClient({ environment: 'home', reveal: async () => true, run: async (file, args, options) => {
     calls.push({ file, args, options });
     return { stdout: JSON.stringify({ ok: true, result: args[1] === 'list'
       ? { terminals: [{ worktreeId: project.worktreeId, handle: 'fresh' }] } : { switched: true } }) };
@@ -43,4 +43,20 @@ test('failed and truncated queries do not masquerade as empty success', async ()
   await assert.rejects(client.projects(), /上限/);
   client.run = async () => { throw Object.assign(new Error('failure'), { stdout: JSON.stringify({ error: { message: 'Host unavailable' } }) }); };
   await assert.rejects(client.projects(), /Host unavailable/);
+});
+
+test('remote GUI success still reveals the pane on this desktop and local failure is reported', async () => {
+  const terminal = { handle: 'remote-handle', worktreeId: 'repo::/project', tabId: 'tab', leafId: 'pane' };
+  const calls = [];
+  let navigated = true;
+  const client = new OrcaClient({ environment: 'remote', run: async (file, args) => ({ stdout: JSON.stringify({ ok: true,
+    result: args[1] === 'list' ? { terminals: [terminal] } : { focus: { navigated: true } } }) }),
+    reveal: async (...args) => { calls.push(args); return navigated; } });
+  const result = await client.switchProject({ worktreeId: terminal.worktreeId });
+  assert.equal(result.focus.desktop, true);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0][1], 'remote');
+  assert.deepEqual(calls[0][2], terminal);
+  navigated = false;
+  await assert.rejects(client.switchProject({ worktreeId: terminal.worktreeId }), /无法在本机/);
 });
