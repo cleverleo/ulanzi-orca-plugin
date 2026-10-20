@@ -20,11 +20,11 @@ test('initial slots and newcomers use newest activity across all environments', 
   const filled = assignSlots([projectKey(older), null, projectKey(missing)], [older, missing, fallback, newest]);
   assert.deepEqual(filled.slice(0, 4), [older, newest, missing, fallback].map(projectKey));
 });
-test('slots survive activity reordering and reloads, while new worktrees fill holes', () => {
+test('slots survive activity updates and reloads, but closing a worktree reorders survivors', () => {
   const slots = assignSlots([], [b, a]);
   assert.deepEqual(slots.slice(0, 3), [projectKey(a), projectKey(b), null]);
   assert.deepEqual(assignSlots(JSON.parse(JSON.stringify(slots)), [b, a]), slots);
-  assert.deepEqual(assignSlots(slots, [b, c]).slice(0, 3), [projectKey(c), projectKey(b), null]);
+  assert.deepEqual(assignSlots(slots, [b, c]).slice(0, 3), [projectKey(b), projectKey(c), null]);
   assert.deepEqual(assignSlots([projectKey(a), projectKey(a)], [a]).slice(0, 3), [projectKey(a), null, null]);
 });
 test('one worktree per slot including distinct branches and hosts, capped at ten', () => {
@@ -95,4 +95,21 @@ test('fleet auto-discovers all saved environments, preserves unavailable occupan
 test('discovery failure and total outage cannot silently empty saved slots', async () => {
   const fleet = new OrcaFleet({ run: async () => { throw new Error('offline'); } });
   await assert.rejects(fleet.projects([projectKey(a)]), /暂不可用/);
+});
+
+test('closing any workspace reorders all mounted slots by latest activity, including overflow', () => {
+  const first = [project('a', { lastActivityAt: 300 }), project('b', { lastActivityAt: 200 }), project('c', { lastActivityAt: 100 })];
+  const slots = assignSlots([], first, [1, 3]);
+  const updated = [{ ...first[0], lastActivityAt: 400 }, { ...first[1], lastActivityAt: 500 }, first[2]];
+  assert.deepEqual(assignSlots(slots, updated, [1, 3], first.map(projectKey)), slots);
+  // Closing an overflow workspace also triggers a complete activity sort.
+  const remaining = updated.slice(0, 2);
+  assert.deepEqual(assignSlots(slots, remaining, [1, 3], updated.map(projectKey)).slice(0, 4),
+    [projectKey(first[1]), null, projectKey(first[0]), null]);
+  // An unavailable environment remains represented and must not trigger reordering.
+  assert.deepEqual(assignSlots(slots, [updated[0], { ...updated[1], unavailable: true }, first[2]], [1, 3], first.map(projectKey)), slots);
+  // Closing a visible workspace allows the most active overflow workspace to move first.
+  const survivors = [updated[0], { ...first[2], lastActivityAt: 600 }];
+  assert.deepEqual(assignSlots(slots, survivors, [1, 3], updated.map(projectKey)).slice(0, 4),
+    [projectKey(first[2]), null, projectKey(first[0]), null]);
 });

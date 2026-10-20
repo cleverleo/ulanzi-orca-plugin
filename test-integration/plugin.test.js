@@ -110,10 +110,15 @@ console.log(JSON.stringify({ok:true,result}));`, { mode: 0o755 });
   const hiddenCount = messages.filter(m => m.cmd === 'state').length;
   await delay(300);
   assert.equal(messages.filter(m => m.cmd === 'state').length, hiddenCount);
+  // Activity changes while hidden must take effect when the page returns.
+  await writeFile(fixture, JSON.stringify({ worktrees: [demo,
+    { worktreeId: 'repo::/beta', hostId: 'local', repo: 'Beta', liveTerminalCount: 1, lastActivityAt: 200 },
+    { worktreeId: 'repo::/gamma', hostId: 'local', repo: 'Gamma', liveTerminalCount: 1, lastActivityAt: 900 },
+  ] }));
   socket.send(JSON.stringify({ ...emptyAddress, cmd: 'setactive', active: true }));
   const resumedAt = messages.length;
   const resumed = await waitFor(m => messages.indexOf(m) >= resumedAt && m.cmd === 'sendToPropertyInspector' && m.payload.enabledSlots?.length === 1);
-  assert.equal(resumed.payload.slots[0].project.name, 'Demo');
+  assert.equal(resumed.payload.slots[0].project.name, 'Gamma');
   socket.send(JSON.stringify({ ...address, cmd: 'add', param }));
   await waitFor(m => messages.indexOf(m) >= after && m.cmd === 'sendToPropertyInspector' && m.payload.enabledSlots?.length === 2);
   // Moving the first button below the second changes its computed ordinal.

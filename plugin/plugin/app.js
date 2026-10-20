@@ -88,6 +88,7 @@ async function poll(data) {
     diagnostic({ stage: 'querying', globalsLoaded, keyCount: keys.size });
     try {
       const result = await data.client.projects(data.slots);
+      const previousKeys = data.projects.length ? data.projects.map(projectKey) : undefined;
       data.projects = result.worktrees;
       data.warnings = result.warnings;
       const mounted = enabledSlots(data);
@@ -97,7 +98,8 @@ async function poll(data) {
       const layoutId = JSON.stringify(mountedEntries(data).map(([context]) => context).sort());
       const previous = data.layoutId !== layoutId
         ? globalSettings.layoutAssignments?.[data.id]?.[layoutId] || data.slots : data.slots;
-      const slots = assignSlots(previous, data.projects, mounted);
+      const slots = assignSlots(data.reorderOnReturn ? [] : previous, data.projects, mounted, previousKeys);
+      data.reorderOnReturn = false;
       if (data.layoutId !== layoutId || JSON.stringify(slots) !== JSON.stringify(data.slots)) {
         data.slots = slots;
         data.layoutId = layoutId;
@@ -127,8 +129,9 @@ function register(message) {
   const settings = { ...previous, ...message.param, lastRender: null,
     active: message.active ?? (message.cmd === 'add' ? true : previous.active ?? true),
     position: message.key ?? previous.position, device: message.device ?? previous.device };
-  keys.set(message.context, settings);
   const data = source(settings);
+  if (settings.active !== false && (previous.active === false || !mountedEntries(data).length)) data.reorderOnReturn = true;
+  keys.set(message.context, settings);
   updateLayout(data);
   if (oldSource && oldSource !== data) updateLayout(oldSource);
   diagnostic({ keyCount: keys.size, globalsLoaded });
@@ -144,8 +147,9 @@ api.onParamFromPlugin(register);
 api.onSetActive(message => {
   const settings = keys.get(message.context);
   if (!settings || typeof message.active !== 'boolean') return;
-  settings.active = message.active;
   const data = source(settings);
+  if (message.active && settings.active === false) data.reorderOnReturn = true;
+  settings.active = message.active;
   updateLayout(data);
   schedulePoll(data);
   if (message.active) { settings.lastRender = null; render(message.context); }

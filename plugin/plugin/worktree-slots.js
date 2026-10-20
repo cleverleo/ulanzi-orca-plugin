@@ -36,10 +36,12 @@ function activityTime(project) {
   return 0;
 }
 
-// Existing occupants keep their index even when CLI activity ordering changes.
-export function assignSlots(previous, projects, enabledSlots = Array.from({ length: SLOT_COUNT }, (_, i) => i + 1)) {
+// Keep positions during activity updates; a closed workspace triggers a fresh activity sort.
+export function assignSlots(previous, projects, enabledSlots = Array.from({ length: SLOT_COUNT }, (_, i) => i + 1), previousKeys = previous) {
   const enabled = new Set(enabledSlots);
   const available = new Set(projects.map(projectKey));
+  const closed = (previousKeys ?? []).some(key => typeof key === 'string' && !available.has(key));
+  if (closed) previous = [];
   const used = new Set();
   const count = Math.max(SLOT_COUNT, ...enabledSlots);
   const slots = Array.from({ length: count }, (_, index) => {
