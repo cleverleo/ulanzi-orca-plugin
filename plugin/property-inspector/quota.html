@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { color-scheme: dark; font: 13px system-ui; }
+    body { margin: 16px; background: #202124; color: #eee; }
+    label { display: block; margin-top: 14px; }
+    input, select, button { box-sizing: border-box; width: 100%; padding: 8px; margin-top: 6px; color: inherit; background: #303236; border: 1px solid #62656a; border-radius: 5px; }
+    button { cursor: pointer; } p, small { line-height: 1.6; } small { color: #bec2c8; }
+    #status { white-space: pre-wrap; } table { width: 100%; margin-top: 12px; border-collapse: collapse; font-size: 12px; }
+    td, th { padding: 7px 3px; border-bottom: 1px solid #45484d; text-align: left; }
+    details { margin-top: 16px; }
+  </style>
+  <script src="../libs/js/constants.js"></script>
+  <script src="../libs/js/eventEmitter.js"></script>
+  <script src="../libs/js/timers.js"></script>
+  <script src="../libs/js/utils.js"></script>
+  <script src="../libs/js/ulanziApi.js"></script>
+</head>
+<body>
+  <h3>Agent 额度</h3>
+  <label>绑定的 Agent<select id="provider"><option value="claude">Claude</option></select></label>
+  <button id="refresh" type="button">刷新额度</button>
+  <p id="status" role="status">正在读取 Orca 额度…</p>
+  <small>显示已用比例。自动读取本机和所有远程环境，优先显示已用比例最高的环境。每 30 秒与 Orca 同步；按下按钮也会重新读取。过期缓存会标注，不会当作最新额度。</small>
+  <table><thead><tr><th>环境</th><th>周期</th><th>已用</th><th>重置</th></tr></thead><tbody id="entries"></tbody></table>
+  <details><summary>高级设置</summary><label>Orca CLI 路径<input id="cliPath" placeholder="/Applications/Orca.app/Contents/Resources/bin/orca"></label></details>
+  <script src="quota-inspector.js"></script>
+</body>
+</html>

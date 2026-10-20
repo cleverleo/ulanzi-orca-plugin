@@ -27,6 +27,10 @@ run = "mise exec -- node scripts/package.mjs"
 description = "Read Orca project status without terminal output or prompts"
 run = "mise exec -- node scripts/probe.mjs"
 
+[tasks.quota-probe]
+description = "Read sanitized Agent quotas from Orca and configured environments"
+run = "mise exec -- node scripts/probe-quotas.mjs"
+
 [tasks.install]
 description = "Copy the built plugin into Ulanzi Studio (macOS)"
 depends = ["build"]

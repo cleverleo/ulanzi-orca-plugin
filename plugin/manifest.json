@@ -1,8 +1,8 @@
 {
   "Author": "Leo Liang",
   "Name": "Orca Projects",
-  "Description": "Orca worktree 自动坑位、运行状态与终端跳转",
-  "Version": "0.3.1",
+  "Description": "Orca worktree 自动按钮、终端跳转与 Agent 额度",
+  "Version": "0.4.0",
   "UUID": "com.ulanzi.ulanzistudio.orcaprojects",
   "Type": "JavaScript",
   "CodePath": "plugin/app.js",
@@ -17,6 +17,23 @@
       "UUID": "com.ulanzi.ulanzistudio.orcaprojects.project",
       "Icon": "resources/idle.svg",
       "PropertyInspectorPath": "property-inspector/inspector.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "Devices": [],
+      "States": [
+        {
+          "Image": "resources/idle.svg"
+        }
+      ],
+      "SupportedInMultiActions": false
+    },
+    {
+      "Name": "Agent 额度",
+      "Tooltip": "选择 Agent 类型，显示已用比例和重置时间；按下重新读取",
+      "UUID": "com.ulanzi.ulanzistudio.orcaprojects.usage",
+      "Icon": "resources/idle.svg",
+      "PropertyInspectorPath": "property-inspector/quota.html",
       "Controllers": [
         "Keypad"
       ],

@@ -1,10 +1,10 @@
-import { readFileSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, mkdirSync, writeFileSync, existsSync, readdirSync, statSync, unlinkSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { labels, primaryAgent, worktreeName } from './project-state.js';
 
 export const colors = { waiting: '#fbbf24', working: '#38bdf8', done: '#4ade80', idle: '#94a3b8', error: '#f87171', unknown: '#a78bfa', offline: '#64748b', empty: '#475569' };
-const aliases = { 'claude-code': 'claude', claude: 'claude', codex: 'codex', 'codex-cli': 'codex', gemini: 'gemini', 'gemini-cli': 'gemini', cursor: 'cursor', 'cursor-agent': 'cursor', opencode: 'opencode', grok: 'grok', 'grok-bot': 'grok' };
-const names = { claude: 'Claude', codex: 'Codex', gemini: 'Gemini', cursor: 'Cursor', opencode: 'OpenCode', grok: 'Grok' };
+const aliases = { 'claude-code': 'claude', claude: 'claude', codex: 'codex', 'codex-cli': 'codex', gemini: 'gemini', 'gemini-cli': 'gemini', cursor: 'cursor', 'cursor-agent': 'cursor', opencode: 'opencode', grok: 'grok', 'grok-bot': 'grok', antigravity: 'antigravity' };
+const names = { claude: 'Claude', codex: 'Codex', gemini: 'Gemini', cursor: 'Cursor', opencode: 'OpenCode', grok: 'Grok', antigravity: 'Antigravity' };
 const logos = Object.fromEntries(Object.keys(names).map(type => {
   const svg = readFileSync(new URL(`../resources/agents/${type}.svg`, import.meta.url), 'utf8');
   // Preserve the brand paths and explicit colors, with a white default on dark keys.
@@ -18,6 +18,7 @@ const logos = Object.fromEntries(Object.keys(names).map(type => {
   return [type, `<g transform="translate(${-13 - viewBox[0] * scale} ${-13 - viewBox[1] * scale}) scale(${scale})" fill="#f8fafc" ${attributes.replace(/\sfill="[^"]*"/, '')}>${content}</g>`];
 }));
 const terminal = '<g transform="translate(-13 -13) scale(7.083333)" stroke="#cbd5e1" stroke-width="1.4" fill="none"><rect x="1" y="3" width="22" height="18" rx="3"/><path d="m5 8 4 4-4 4m8 0h6"/></g>';
+export const agentArtwork = type => logos[aliases[type]] || terminal;
 const escape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[ch]);
 const units = char => /[^\u0000-\u00ff]/.test(char) ? 2 : 1;
 function truncate(value, max) {
@@ -73,11 +74,25 @@ ${worktreeLines.map((line, i) => `<text x="72" y="${worktreeLines.length === 1 ?
 }
 
 const output = new URL('../resources/live/', import.meta.url);
-export function writeKeyIcon(svg) {
+const currentIcons = new Map();
+let newIcons = 0;
+export function writeKeyIcon(svg, context) {
   const hash = createHash('sha256').update(svg).digest('hex').slice(0, 24);
   const target = new URL(`${hash}.svg`, output);
   mkdirSync(output, { recursive: true });
-  if (!existsSync(target)) writeFileSync(target, svg);
+  if (context) currentIcons.set(context, `${hash}.svg`);
+  if (!existsSync(target)) {
+    writeFileSync(target, svg);
+    if (++newIcons % 128 === 0) {
+      // Quota countdowns change regularly; bound generated files without evicting displayed icons.
+      try {
+        const protectedNames = new Set(currentIcons.values());
+        const files = readdirSync(output).filter(name => /^[a-f0-9]{24}\.svg$/.test(name))
+          .map(name => ({ name, time: statSync(new URL(name, output)).mtimeMs })).sort((a, b) => b.time - a.time);
+        for (const file of files.slice(512)) if (!protectedNames.has(file.name) && file.name !== `${hash}.svg`) unlinkSync(new URL(file.name, output));
+      } catch { /* Cache maintenance cannot stop the display. */ }
+    }
+  }
   // Content-addressed paths ensure Studio reloads changed icons instead of a cached image.
   return `resources/live/${hash}.svg`;
 }

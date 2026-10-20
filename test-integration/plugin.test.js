@@ -58,7 +58,7 @@ console.log(JSON.stringify({ok:true,result}));`, { mode: 0o755 });
   assert.ok(iconSvg(icon).includes('Codex'));
   assert.ok(!iconSvg(icon).includes('shrimp'));
   assert.equal(icon.param.statelist[0].showtext, false);
-  const inspector = await waitFor(m => m.cmd === 'sendToPropertyInspector' && m.payload.projects.length === 1);
+  const inspector = await waitFor(m => m.cmd === 'sendToPropertyInspector' && m.payload.projects?.length === 1);
   assert.equal(inspector.payload.projects[0].agents[0].state, 'waiting');
   assert.equal(inspector.payload.slots[0].project.name, 'Demo');
   assert.deepEqual(inspector.payload.enabledSlots, [1]);
@@ -80,24 +80,31 @@ console.log(JSON.stringify({ok:true,result}));`, { mode: 0o755 });
   }
   assert.ok(calls.some(a => a[1] === 'switch' && a.includes('fresh')));
   assert.equal(calls.filter(a => a[1] === 'switch').length, 1);
+  const quotaAddress = { uuid: 'com.ulanzi.ulanzistudio.orcaprojects.usage', key: '9_9', actionid: 'quota1' };
+  socket.send(JSON.stringify({ ...quotaAddress, cmd: 'add', param: { cliPath: cli, provider: 'codex' } }));
+  await waitFor(m => m.cmd === 'sendToPropertyInspector' && m.payload.type === 'quota' && m.payload.provider === 'codex' && m.payload.updatedAt > 0);
+  const quotaMountedAt = messages.length;
+  socket.send(JSON.stringify({ ...address, cmd: 'sendToPlugin', payload: { type: 'projects' } }));
+  const withoutQuota = await waitFor(m => messages.indexOf(m) >= quotaMountedAt && m.cmd === 'sendToPropertyInspector' && m.payload.enabledSlots?.length === 2);
+  assert.deepEqual(withoutQuota.payload.enabledSlots, [1, 2]);
   await writeFile(fixture, JSON.stringify({ worktrees: [demo,
     { worktreeId: 'repo::/beta', hostId: 'local', repo: 'Beta', liveTerminalCount: 1, lastActivityAt: 200 },
     { worktreeId: 'repo::/gamma', hostId: 'local', repo: 'Gamma', liveTerminalCount: 1, lastActivityAt: 100 },
   ] }));
   socket.send(JSON.stringify({ ...address, cmd: 'sendToPlugin', payload: { type: 'projects' } }));
-  const expanded = await waitFor(m => m.cmd === 'sendToPropertyInspector' && m.payload.projects.length === 3 && m.payload.slots[1].project?.name === 'Beta');
+  const expanded = await waitFor(m => m.cmd === 'sendToPropertyInspector' && m.payload.projects?.length === 3 && m.payload.slots[1].project?.name === 'Beta');
   assert.deepEqual(expanded.payload.enabledSlots, [1, 2]);
   assert.equal(expanded.payload.overflow, 1);
   assert.ok(expanded.payload.slots.slice(2).every(s => s.project === null));
   socket.send(JSON.stringify({ cmd: 'clear', param: [address] }));
-  const reduced = await waitFor(m => m.cmd === 'sendToPropertyInspector' && m.payload.projects.length === 3 && m.payload.enabledSlots.length === 1);
+  const reduced = await waitFor(m => m.cmd === 'sendToPropertyInspector' && m.payload.projects?.length === 3 && m.payload.enabledSlots?.length === 1);
   assert.equal(reduced.payload.slot, 1);
   assert.equal(reduced.payload.overflow, 2);
   assert.ok(reduced.payload.slots.slice(1).every(s => s.project === null));
   // Repeated registration is idempotent; hidden pages stop consuming visible capacity.
   const after = messages.length;
   socket.send(JSON.stringify({ ...emptyAddress, cmd: 'add', param }));
-  await waitFor(m => messages.indexOf(m) >= after && m.cmd === 'sendToPropertyInspector' && m.payload.enabledSlots.length === 1);
+  await waitFor(m => messages.indexOf(m) >= after && m.cmd === 'sendToPropertyInspector' && m.payload.enabledSlots?.length === 1);
   socket.send(JSON.stringify({ ...emptyAddress, cmd: 'setactive', active: false }));
   await delay(300);
   const hiddenCount = messages.filter(m => m.cmd === 'state').length;
@@ -105,10 +112,10 @@ console.log(JSON.stringify({ok:true,result}));`, { mode: 0o755 });
   assert.equal(messages.filter(m => m.cmd === 'state').length, hiddenCount);
   socket.send(JSON.stringify({ ...emptyAddress, cmd: 'setactive', active: true }));
   const resumedAt = messages.length;
-  const resumed = await waitFor(m => messages.indexOf(m) >= resumedAt && m.cmd === 'sendToPropertyInspector' && m.payload.enabledSlots.length === 1);
+  const resumed = await waitFor(m => messages.indexOf(m) >= resumedAt && m.cmd === 'sendToPropertyInspector' && m.payload.enabledSlots?.length === 1);
   assert.equal(resumed.payload.slots[0].project.name, 'Demo');
   socket.send(JSON.stringify({ ...address, cmd: 'add', param }));
-  await waitFor(m => messages.indexOf(m) >= after && m.cmd === 'sendToPropertyInspector' && m.payload.enabledSlots.length === 2);
+  await waitFor(m => messages.indexOf(m) >= after && m.cmd === 'sendToPropertyInspector' && m.payload.enabledSlots?.length === 2);
   // Moving the first button below the second changes its computed ordinal.
   const movedAddress = { ...address, key: '0_1' };
   const movedAt = messages.length;
@@ -117,7 +124,7 @@ console.log(JSON.stringify({ok:true,result}));`, { mode: 0o755 });
   const moved = await waitFor(m => messages.indexOf(m) >= movedAt && m.cmd === 'sendToPropertyInspector' && m.key === '0_1' && m.payload.slot === 2);
   assert.deepEqual(moved.payload.enabledSlots, [1, 2]);
   assert.equal(moved.payload.slots[1].project.name, 'Beta');
-  socket.send(JSON.stringify({ cmd: 'clear', param: [movedAddress, emptyAddress] }));
+  socket.send(JSON.stringify({ cmd: 'clear', param: [movedAddress, emptyAddress, quotaAddress] }));
   await delay(100);
   const count = messages.filter(m => m.cmd === 'state').length;
   await delay(2700);

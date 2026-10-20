@@ -40,7 +40,8 @@ test('one worktree per slot including distinct branches and hosts, capped at ten
 test('one generic action is numbered by physical rows and columns', async () => {
   const manifest = JSON.parse(await readFile(new URL('../plugin/manifest.json', import.meta.url)));
   assert.equal(manifest.Actions[0].UUID, 'com.ulanzi.ulanzistudio.orcaprojects.project');
-  assert.equal(manifest.Actions.length, 1);
+  assert.equal(manifest.Actions.filter(a => a.UUID.endsWith('.project')).length, 1);
+  assert.ok(!manifest.Actions.some(a => /\.slot\d+$/.test(a.UUID)));
   const entries = [['b', { position: '0_1' }], ['c', { position: '10_0' }], ['a', { position: '2_0' }]];
   assert.deepEqual([...layoutSlots(entries)], [['a', 1], ['c', 2], ['b', 3]]);
   assert.deepEqual([...layoutSlots([['a', { position: '0_2' }], entries[0], entries[1]])], [['c', 1], ['b', 2], ['a', 3]]);

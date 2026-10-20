@@ -1,6 +1,6 @@
 # Ulanzi Orca Projects
 
-用于 macOS Ulanzi Studio 的 Orca worktree 坑位插件。自动汇总本机和 Orca 已配置的全部远程环境，根据当前设备页面上的按钮数量显示 worktree 与 Agent 状态，按下后跳到对应终端。仅使用 Orca CLI，不包含账号额度。
+用于 macOS Ulanzi Studio 的 Orca 插件。自动汇总本机和全部已配置远程环境，按实际按钮数量显示 worktree 与 Agent 状态并跳转终端；另外提供可绑定 Agent 类型的额度按钮。
 
 ## 开发
 
@@ -38,6 +38,8 @@ Orca 的 `environment list` 用于自动发现远程环境；随后并发读取�
 
 ## 状态含义
 
+「Orca 工作区」按钮：
+
 | 显示 | 含义 |
 |---|---|
 | 待确认 | Agent waiting/blocked，或程序报告阻塞 |
@@ -48,6 +50,18 @@ Orca 的 `environment list` 用于自动发现远程环境；随后并发读取�
 | 未知 | 查询失败、无法确认终端存活或未知的 Agent 状态 |
 
 管理字段 workspaceStatus 不作为 Agent 工作状态；查询失败不会继续显示缓存中的工作状态。项目以环境、工作区和 host 区分，不只按项目名称匹配。仅有已停止终端、且没有执行中 Agent 的工作区不占位。一个 worktree 内有多个 Agent 时共用一个坑位。
+
+## Agent 额度
+
+只提供一种「Agent 额度」按钮。在每个按钮的设置页选择绑定的 Agent 类型，可以分别配置 Claude、Codex、Cursor、Antigravity 等。它们不参与工作区按钮的容量或位置排序。
+
+图标显示**已用比例**及对应窗口的重置倒计时。支持会话、每周和每月窗口；缺失的窗口不会补成 0%。单窗口放大显示，双窗口分别显示。环境自动发现；同一类型在多个环境都有数据时，优先选新鲜有效数据中已用比例最高的环境，设置页列出所有环境及窗口明细。数据超过 5 分钟会标为过期缓存；读取失败或 Orca 未提供额度时明确显示状态。
+
+每 30 秒读取一次 Orca 当前额度快照，按下按钮或配置页刷新也会重新读取。这里与 Orca 的数据显示同步，刷新不强制向供应商发起额外查询。读取的是每个环境在 Orca 当前额度目标下展示的账号额度，不汇总已用比例或自动切换账号。
+
+工作区仍通过公开 CLI 查询。额度使用安装包自带的 `RuntimeClient` 调用内部只读 `accounts.list`，通过独立 Node.js 子进程执行，适配器只输出白名单内的额度指标，不传出账号详情、令牌或凭据，也不调用额度重置信用等消费操作。已验证 Orca 1.4.232 的本机和远端读取；这是内部接口，未来 Orca 版本变动时可能需要更新适配，失败会显示不可用。
+
+`mise run quota-probe` 可输出脱敏后的真实额度。`mise exec -- node scripts/probe-quotas.mjs --preview` 额外生成 `dist/quota-preview.html`，便于检查图标。生成的倒计时图标缓存会定期清理旧文件，保留当前显示的图标。
 
 ## 验证与限制
 

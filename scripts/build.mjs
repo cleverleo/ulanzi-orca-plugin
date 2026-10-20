@@ -16,7 +16,9 @@ for (const [name, directory] of [['sdk', sdk], ['common-node', path.join(sdk, 'c
 await mkdir(output, { recursive: true });
 // Runtime/test icons are regenerated on demand; do not ship cached project names.
 await rm(path.join(output, 'resources/live'), { recursive: true, force: true });
-await cp(path.join(root, 'plugin'), output, { recursive: true });
+await rm(path.join(output, 'diagnostics.json'), { force: true });
+await cp(path.join(root, 'plugin'), output, { recursive: true,
+  filter: source => source !== path.join(root, 'plugin/diagnostics.json') && source !== path.join(root, 'plugin/resources/live') });
 await cp(path.join(sdk, 'common-node/libs'), path.join(output, 'sdk-node/libs'), { recursive: true });
 for (const name of ['index.js', 'LICENSE']) await cp(path.join(sdk, 'common-node', name), path.join(output, 'sdk-node', name));
 for (const name of ['js', 'css', 'assets']) await cp(path.join(sdk, 'common-html', name), path.join(output, 'libs', name), { recursive: true });

@@ -5,8 +5,11 @@ import { publicProject, projectKey } from './project-state.js';
 import { keyIconSvg, writeKeyIcon } from './key-icon.js';
 import { assignSlots, mountedSlots, layoutSlots, slotProject } from './worktree-slots.js';
 import { diagnostic } from './diagnostics.js';
+import { isQuotaAction } from './quota-state.js';
+import { mountQuotaButtons } from './quota-buttons.js';
 
 const api = new UlanziApi();
+mountQuotaButtons(api);
 const keys = new Map();
 const sources = new Map();
 const pressed = new Set();
@@ -70,7 +73,7 @@ function render(context) {
     project ? publicProject(project).state : 'empty';
   const signature = keyIconSvg({ project, slot: settings.slot, state });
   if (settings.lastRender !== signature) {
-    api.setPathIcon(context, writeKeyIcon(signature));
+    api.setPathIcon(context, writeKeyIcon(signature, context));
     settings.lastRender = signature;
   }
 }
@@ -115,6 +118,7 @@ async function poll(data) {
 }
 
 function register(message) {
+  if (isQuotaAction(message.uuid)) return;
   if (!message.context) return;
   const previous = keys.get(message.context) || {};
   const oldSource = keys.has(message.context) ? source(previous) : null;
@@ -126,7 +130,7 @@ function register(message) {
   updateLayout(data);
   if (oldSource && oldSource !== data) updateLayout(oldSource);
   diagnostic({ keyCount: keys.size, globalsLoaded });
-  if (!globalsLoaded) api.getGlobalSettings(message.context);
+  if (!globalsLoaded) { diagnostic({ stage: 'waiting-for-settings' }); api.getGlobalSettings(message.context); }
   render(message.context);
   schedulePoll(data);
   if (oldSource && oldSource !== data) schedulePoll(oldSource);
@@ -181,7 +185,7 @@ api.onRun(async message => {
 // Studio owns restarting the process. Avoid unhandled EventEmitter error events.
 api.on('error', () => {});
 api.on('close', () => process.exit(0));
-api.onConnected(() => { diagnostic({ stage: 'waiting-for-settings', connected: true }); });
+api.onConnected(() => { diagnostic({ stage: 'connected', connected: true }); });
 api.onDidReceiveGlobalSettings(message => {
   if (globalsLoaded) return;
   globalSettings = message.settings && typeof message.settings === 'object' ? message.settings : {};

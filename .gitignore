@@ -2,3 +2,5 @@ node_modules/
 dist/
 vendor/
 .DS_Store
+plugin/diagnostics.json
+plugin/resources/live/
