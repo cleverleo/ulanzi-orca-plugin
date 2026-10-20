@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 import { readFileSync, mkdirSync, writeFileSync, existsSync, readdirSync, statSync, unlinkSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { labels, primaryAgent, worktreeName } from './project-state.js';
@@ -54,10 +55,10 @@ export function keyIconSvg({ project, slot, state }) {
   const agentLabel = types.length ? types.map(t => names[t] || t).join(' + ') : 'Terminal';
   const color = colors[state] || colors.unknown;
   const lines = projectLines(project?.repo || project?.displayName || `Orca ${slot}`, 12);
-  const worktree = project ? project.displayName || worktreeName(project) : '等待 worktree';
+  const worktree = project ? project.displayName || worktreeName(project) : t('等待 worktree');
   const worktreeLines = projectLines(worktree, 13);
   return `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
-<title>${escape(project?.repo || `Orca ${slot}`)} · ${escape(worktree)} · ${escape(agentLabel)} · ${escape(labels[state] || labels.unknown)}</title>
+<title>${escape(project?.repo || `Orca ${slot}`)} · ${escape(worktree)} · ${escape(agentLabel)} · ${escape(t(labels[state] || labels.unknown))}</title>
 <defs><clipPath id="key-clip"><rect x="4" y="4" width="136" height="136" rx="12"/></clipPath></defs>
 <rect width="144" height="144" rx="16" fill="#111827"/>
 <g clip-path="url(#key-clip)">
@@ -67,7 +68,7 @@ export function keyIconSvg({ project, slot, state }) {
 ${lines.map((line, i) => `<text x="72" y="${lines.length === 1 ? 60 : 45 + i * 21}" font-size="18" font-weight="bold" fill="#ffffff">${escape(line)}</text>`).join('')}
 ${worktreeLines.map((line, i) => `<text x="72" y="${worktreeLines.length === 1 ? 100 : 87 + i * 21}" font-size="17" font-weight="bold" fill="#ffffff">${escape(line)}</text>`).join('')}
 <rect x="12" y="115" width="120" height="19" rx="7" fill="${color}"/>
-<text x="72" y="130" font-size="12" font-weight="bold" fill="#111827">${slot} · ${escape(labels[state] || labels.unknown)}</text>
+<text x="72" y="130" font-size="12" font-weight="bold" fill="#111827">${slot} · ${escape(t(labels[state] || labels.unknown))}</text>
 </g></g>
 <rect x="3" y="3" width="138" height="138" rx="13" fill="none" stroke="${color}" stroke-width="3"/>
 </svg>`;

@@ -1,3 +1,4 @@
+import { setLocale, t, format } from './i18n.js';
 import UlanziApi from '../sdk-node/index.js';
 import { defaultCli } from './orca-client.js';
 import { OrcaFleet } from './orca-fleet.js';
@@ -9,6 +10,7 @@ import { isQuotaAction } from './quota-state.js';
 import { mountQuotaButtons } from './quota-buttons.js';
 
 const api = new UlanziApi();
+setLocale(process.argv[4] || 'en');
 mountQuotaButtons(api);
 const keys = new Map();
 const sources = new Map();
@@ -173,10 +175,10 @@ api.onRun(async message => {
     const expectedKey = data.slots[settings.slot - 1];
     await poll(data);
     if (data.error) throw new Error(data.error);
-    if (!globalsLoaded) throw new Error('正在加载坑位设置，请稍后重试');
+    if (!globalsLoaded) throw new Error(t('正在加载坑位设置，请稍后重试'));
     const project = slotProject(data, settings.slot);
-    if (!project) throw new Error(`坑位 ${settings.slot} 暂无运行中的 worktree`);
-    if (!expectedKey || expectedKey !== projectKey(project)) throw new Error('坑位已更新，请查看按键后再按一次');
+    if (!project) throw new Error(format(`坑位 ${settings.slot} 暂无运行中的 worktree`, `No running worktree in slot ${settings.slot}`));
+    if (!expectedKey || expectedKey !== projectKey(project)) throw new Error(t('坑位已更新，请查看按键后再按一次'));
     await data.client.switchProject(project);
   } catch (error) { api.toast(error.message); api.showAlert(message.context); }
   finally { pressed.delete(message.context); }

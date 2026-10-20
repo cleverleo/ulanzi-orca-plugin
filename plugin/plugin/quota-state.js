@@ -1,3 +1,4 @@
+import { t, format } from './i18n.js';
 export const quotaProviders = Object.freeze({
   claude: 'Claude', codex: 'Codex', cursor: 'Cursor', antigravity: 'Antigravity',
   gemini: 'Gemini', grok: 'Grok', kimi: 'Kimi', minimax: 'MiniMax',
@@ -51,10 +52,10 @@ export function selectQuota(entries) {
 }
 
 export function resetLabel(timestamp, now = Date.now()) {
-  if (!Number.isFinite(timestamp) || timestamp <= 0) return '重置时间未知';
+  if (!Number.isFinite(timestamp) || timestamp <= 0) return t('重置时间未知');
   const minutes = Math.ceil((timestamp - now) / 60000);
-  if (minutes <= 0) return '等待重置更新';
-  if (minutes < 60) return `${minutes}分后重置`;
-  if (minutes < 1440) return `${Math.floor(minutes / 60)}时${minutes % 60}分后`;
-  return `${Math.floor(minutes / 1440)}天${Math.floor(minutes % 1440 / 60)}时后`;
+  if (minutes <= 0) return t('等待重置更新');
+  if (minutes < 60) return format(`${minutes}分后重置`, `Reset in ${minutes}m`);
+  if (minutes < 1440) return format(`${Math.floor(minutes / 60)}时${minutes % 60}分后`, `Reset in ${Math.floor(minutes / 60)}h ${minutes % 60}m`);
+  return format(`${Math.floor(minutes / 1440)}天${Math.floor(minutes % 1440 / 60)}时后`, `Reset in ${Math.floor(minutes / 1440)}d ${Math.floor(minutes % 1440 / 60)}h`);
 }

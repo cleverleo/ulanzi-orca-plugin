@@ -1,3 +1,7 @@
+import { t, format, setLocale, getLocale, windowLabel } from '../plugin/i18n.js';
+setLocale(new URLSearchParams(location.search).get('language') || navigator.language);
+document.documentElement.lang = getLocale();
+for (const node of document.querySelectorAll('[data-i18n]')) node.textContent = t(node.textContent);
 /* global $UD */
 const provider = document.getElementById('provider');
 const cliPath = document.getElementById('cliPath');
@@ -13,14 +17,14 @@ function load(message) {
 }
 function save() {
   settings = { provider: provider.value || 'claude', cliPath: cliPath.value.trim() };
-  status.textContent = '正在读取…';
+  status.textContent = t('正在读取…');
   entries.replaceChildren();
   $UD.sendParamFromPlugin(settings);
   $UD.sendToPlugin({ type: 'quota' });
 }
 provider.addEventListener('change', save);
 cliPath.addEventListener('change', save);
-document.getElementById('refresh').addEventListener('click', () => { status.textContent = '正在读取…'; $UD.sendToPlugin({ type: 'quota' }); });
+document.getElementById('refresh').addEventListener('click', () => { status.textContent = t('正在读取…'); $UD.sendToPlugin({ type: 'quota' }); });
 $UD.onConnected(() => $UD.sendToPlugin({ type: 'quota' }));
 $UD.onAdd(load);
 $UD.onParamFromApp(load);
@@ -36,14 +40,14 @@ $UD.onSendToPropertyInspector(message => {
     const rows = source.status === 'ok' && windows.length ? windows : [null];
     for (const window of rows) {
       const row = document.createElement('tr');
-      const values = [source.environmentName + (source.stale && window ? '（缓存）' : ''),
-        window?.label || '—', window ? `${Math.round(window.usedPercent * 10) / 10}%` : source.status === 'error' ? '读取失败' : '暂无额度',
+      const values = [(source.environmentId === '' ? t('本机') : source.environmentName) + (source.stale && window ? t('（缓存）') : ''),
+        (window ? windowLabel(window) : null) || '—', window ? `${Math.round(window.usedPercent * 10) / 10}%` : source.status === 'error' ? t('读取失败') : t('暂无额度'),
         window?.resetsAt ? new Date(window.resetsAt).toLocaleString() : '—'];
       for (const value of values) { const cell = document.createElement('td'); cell.textContent = value; row.append(cell); }
       entries.append(row);
     }
   }
-  status.textContent = data.updatedAt ? `读取于 ${new Date(data.updatedAt).toLocaleTimeString()}` : '正在读取…';
+  status.textContent = data.updatedAt ? format(`读取于 ${new Date(data.updatedAt).toLocaleTimeString()}`, `Updated ${new Date(data.updatedAt).toLocaleTimeString()}`) : t('正在读取…');
   if (data.warnings?.length) status.textContent += '\n' + data.warnings.join('\n');
 });
 $UD.connect('com.ulanzi.ulanzistudio.orcaprojects.usage');

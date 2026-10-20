@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 import { defaultCli } from './orca-client.js';
 import { OrcaQuotas } from './orca-quotas.js';
 import { isQuotaAction, quotaProvider, quotaProviders, quotaEntries, selectQuota } from './quota-state.js';

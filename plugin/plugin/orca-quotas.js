@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
@@ -16,11 +17,11 @@ export class OrcaQuotas {
         ({ stdout } = await run(process.execPath, [fileURLToPath(new URL('./orca-quota-worker.cjs', import.meta.url)), cliPath, environment], {
           timeout: 14000, maxBuffer: 2 * 1024 * 1024, env, windowsHide: true,
         }));
-      } catch { throw new Error('无法连接 Orca 额度接口'); }
+      } catch { throw new Error(t('无法连接 Orca 额度接口')); }
       let response;
       try { response = JSON.parse(stdout); }
-      catch { throw new Error('Orca 额度接口返回了无法识别的数据'); }
-      if (!response.ok || !response.quotas || typeof response.quotas !== 'object') throw new Error('Orca 额度接口暂不可用');
+      catch { throw new Error(t('Orca 额度接口返回了无法识别的数据')); }
+      if (!response.ok || !response.quotas || typeof response.quotas !== 'object') throw new Error(t('Orca 额度接口暂不可用'));
       return response.quotas;
     });
     this.environments = [];
@@ -33,7 +34,7 @@ export class OrcaQuotas {
       const result = await this.cli.call(['environment', 'list']);
       if (!Array.isArray(result.environments)) throw new Error('invalid');
       this.environments = result.environments.filter(e => e.id).map(e => ({ id: e.id, name: e.name || e.id }));
-    } catch { warnings.push('暂时无法更新远程环境列表，继续读取已知环境'); }
+    } catch { warnings.push(t('暂时无法更新远程环境列表，继续读取已知环境')); }
     const sources = await Promise.all([{ id: '', name: '本机' }, ...this.environments].map(async target => {
       try {
         const quotas = await this.query(target.id);

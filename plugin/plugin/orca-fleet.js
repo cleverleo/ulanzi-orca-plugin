@@ -1,3 +1,4 @@
+import { t, format } from './i18n.js';
 import { OrcaClient } from './orca-client.js';
 import { eligibleWorktrees } from './worktree-slots.js';
 import { projectKey } from './project-state.js';
@@ -15,11 +16,11 @@ export class OrcaFleet {
     let discovered = true;
     try {
       const result = await this.local.call(['environment', 'list']);
-      if (!Array.isArray(result.environments)) throw new Error('无法识别环境列表');
+      if (!Array.isArray(result.environments)) throw new Error(t('无法识别环境列表'));
       this.environments = result.environments.filter(e => e.id);
     } catch (error) {
       discovered = false;
-      warnings.push(`环境列表暂不可用：${error.message}`);
+      warnings.push(format(`环境列表暂不可用：${error.message}`, `Environment list unavailable: ${error.message}`));
     }
     // Restore failed hosts from persisted slots even after a plugin restart.
     const saved = [];
@@ -49,17 +50,17 @@ export class OrcaFleet {
         this.snapshots.set(target.id, rows);
         return rows;
       } catch (error) {
-        warnings.push(`${target.name} 暂不可用：${error.message}`);
+        warnings.push(format(`${target.name} 暂不可用：${error.message}`, `${target.id ? target.name : "Local"} unavailable: ${error.message}`));
         return (this.snapshots.get(target.id) || saved.filter(p => p.environmentId === target.id)).map(p => ({ ...p, unavailable: true }));
       }
     }));
-    if (successfulTargets === 0) throw new Error(warnings.join('\n') || '无法连接 Orca');
+    if (successfulTargets === 0) throw new Error(warnings.join('\n') || t('无法连接 Orca'));
     const worktrees = [...new Map(results.flat().map(p => [projectKey(p), p])).values()];
     return { worktrees, warnings, environmentCount: environments.length };
   }
 
   async switchProject(project) {
-    if (project.unavailable) throw new Error('该 worktree 所在环境暂不可用，请稍后重试');
+    if (project.unavailable) throw new Error(t('该 worktree 所在环境暂不可用，请稍后重试'));
     const client = project.environmentId ? new OrcaClient({ ...this.options, environment: project.environmentId }) : this.local;
     return client.switchProject(project);
   }

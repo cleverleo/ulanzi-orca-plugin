@@ -1,0 +1,15 @@
+{
+  "Name": "Orca Projects",
+  "Description": "Orca worktree buttons, terminal switching and Agent usage",
+  "Actions": [
+    {
+      "Name": "Orca Workspaces",
+      "Tooltip": "Automatically assign worktrees by button position. Press to open the terminal."
+    },
+    {
+      "Name": "Agent Usage",
+      "Tooltip": "Select an Agent to show usage and reset time. Press to refresh."
+    }
+  ],
+  "Localization": {}
+}

@@ -19,6 +19,13 @@ await rm(path.join(output, 'resources/live'), { recursive: true, force: true });
 await rm(path.join(output, 'diagnostics.json'), { force: true });
 await cp(path.join(root, 'plugin'), output, { recursive: true,
   filter: source => source !== path.join(root, 'plugin/diagnostics.json') && source !== path.join(root, 'plugin/resources/live') });
+// Studio loads inspectors from file://. Bundle shared translations into classic
+// scripts so Chromium's module CORS rules do not block local inspector pages.
+const translations = (await readFile(path.join(root, 'plugin/plugin/i18n.js'), 'utf8')).replace(/\bexport /g, '');
+for (const name of ['inspector.js', 'quota-inspector.js']) {
+  const inspector = (await readFile(path.join(root, 'plugin/property-inspector', name), 'utf8')).replace(/^import .*;\n/, '');
+  await writeFile(path.join(output, 'property-inspector', name), `(() => {\n${translations}\n${inspector}\n})();\n`);
+}
 await cp(path.join(sdk, 'common-node/libs'), path.join(output, 'sdk-node/libs'), { recursive: true });
 for (const name of ['index.js', 'LICENSE']) await cp(path.join(sdk, 'common-node', name), path.join(output, 'sdk-node', name));
 for (const name of ['js', 'css', 'assets']) await cp(path.join(sdk, 'common-html', name), path.join(output, 'libs', name), { recursive: true });

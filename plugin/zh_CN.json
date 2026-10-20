@@ -1,0 +1,15 @@
+{
+  "Name": "Orca Projects",
+  "Description": "Orca worktree 自动按钮、终端跳转与 Agent 额度",
+  "Actions": [
+    {
+      "Name": "Orca 工作区",
+      "Tooltip": "自动按按钮位置分配 worktree，按下跳转终端"
+    },
+    {
+      "Name": "Agent 额度",
+      "Tooltip": "选择 Agent 类型，显示已用比例和重置时间；按下重新读取"
+    }
+  ],
+  "Localization": {}
+}

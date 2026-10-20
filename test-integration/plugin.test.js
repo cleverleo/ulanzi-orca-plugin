@@ -9,7 +9,7 @@ import path from 'node:path';
 import { once } from 'node:events';
 import { setTimeout as delay } from 'node:timers/promises';
 
-test('built plugin restores assignments, numbers mounted buttons, handles layout changes and switches terminals', { timeout: 20000 }, async t => {
+for (const locale of ['zh_CN', 'en']) test(`(${locale}) built plugin restores assignments, numbers mounted buttons, handles layout changes and switches terminals`, { timeout: 20000 }, async t => {
   const temp = await mkdtemp(path.join(tmpdir(), 'orca-plugin-test-'));
   t.after(() => rm(temp, { recursive: true, force: true }));
   const log = path.join(temp, 'calls.jsonl');
@@ -24,7 +24,7 @@ console.log(JSON.stringify({ok:true,result}));`, { mode: 0o755 });
   const server = new WebSocketServer({ host: '127.0.0.1', port: 0 });
   await once(server, 'listening');
   t.after(() => { for (const socket of server.clients) socket.terminate(); server.close(); });
-  const child = spawn(process.execPath, ['dist/com.ulanzi.orcaprojects.ulanziPlugin/plugin/app.js', '127.0.0.1', String(server.address().port)], { stdio: ['ignore', 'ignore', 'pipe'] });
+  const child = spawn(process.execPath, ['dist/com.ulanzi.orcaprojects.ulanziPlugin/plugin/app.js', '127.0.0.1', String(server.address().port), locale], { stdio: ['ignore', 'ignore', 'pipe'] });
   let stderr = '';
   child.stderr.on('data', chunk => { stderr += chunk; });
   t.after(async () => { if (child.exitCode === null) { child.kill(); await once(child, 'exit'); } });
@@ -52,7 +52,7 @@ console.log(JSON.stringify({ok:true,result}));`, { mode: 0o755 });
   const param = { cliPath: cli };
   socket.send(JSON.stringify({ ...address, cmd: 'add', param }));
   const iconSvg = message => readFileSync(path.join('dist/com.ulanzi.orcaprojects.ulanziPlugin', message.param.statelist[0].path), 'utf8');
-  const icon = await waitFor(m => m.cmd === 'state' && iconSvg(m).includes('1 · 待确认'));
+  const icon = await waitFor(m => m.cmd === 'state' && iconSvg(m).includes(locale === 'en' ? '1 · Needs input' : '1 · 待确认'));
   assert.ok(iconSvg(icon).includes('Demo'));
   assert.ok(iconSvg(icon).includes('A session title'));
   assert.ok(iconSvg(icon).includes('Codex'));
@@ -68,9 +68,9 @@ console.log(JSON.stringify({ok:true,result}));`, { mode: 0o755 });
   assert.equal(persisted.actionid, 'action1');
   const emptyAddress = { uuid: address.uuid, key: '1_0', actionid: 'action2' };
   socket.send(JSON.stringify({ ...emptyAddress, cmd: 'add', param }));
-  await waitFor(m => m.cmd === 'state' && m.param.statelist[0].key === '1_0' && iconSvg(m).includes('2 · 空坑位'));
+  await waitFor(m => m.cmd === 'state' && m.param.statelist[0].key === '1_0' && iconSvg(m).includes(locale === 'en' ? '2 · Empty' : '2 · 空坑位'));
   socket.send(JSON.stringify({ ...emptyAddress, cmd: 'run' }));
-  await waitFor(m => m.cmd === 'toast' && JSON.stringify(m).includes('暂无运行中的'));
+  await waitFor(m => m.cmd === 'toast' && JSON.stringify(m).includes(locale === 'en' ? 'No running worktree' : '暂无运行中的'));
   socket.send(JSON.stringify({ ...address, cmd: 'run' }));
   let calls = [];
   for (let i = 0; i < 100; i++) {
