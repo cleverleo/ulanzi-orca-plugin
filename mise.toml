@@ -1,0 +1,33 @@
+[tools]
+node = "20.18.0"
+
+[tasks.setup]
+description = "Install locked dependencies"
+run = "mise exec -- npm ci"
+
+[tasks.check]
+description = "Verify state handling and plugin protocol"
+run = "mise exec -- node --test test/*.test.js"
+
+[tasks.build]
+description = "Build the standalone Ulanzi plugin"
+run = "mise exec -- node scripts/build.mjs"
+
+[tasks.integration]
+description = "Test built plugin against a mock Studio WebSocket host"
+depends = ["build"]
+run = "mise exec -- node --test test-integration/*.test.js"
+
+[tasks.package]
+description = "Build a ZIP containing the installable plugin folder"
+depends = ["build"]
+run = "mise exec -- node scripts/package.mjs"
+
+[tasks.probe]
+description = "Read Orca project status without terminal output or prompts"
+run = "mise exec -- node scripts/probe.mjs"
+
+[tasks.install]
+description = "Copy the built plugin into Ulanzi Studio (macOS)"
+depends = ["build"]
+run = "mise exec -- node scripts/install.mjs"

@@ -1,0 +1,26 @@
+{
+  "Author": "Leo Liang",
+  "Name": "Orca Projects",
+  "Description": "Orca 项目状态与终端跳转",
+  "Version": "0.1.0",
+  "UUID": "com.ulanzi.ulanzistudio.orcaprojects",
+  "Type": "JavaScript",
+  "CodePath": "plugin/app.js",
+  "Icon": "resources/idle.svg",
+  "Category": "Orca",
+  "CategoryIcon": "resources/idle.svg",
+  "SupportedInMultiActions": false,
+  "Actions": [{
+    "Name": "Orca 项目",
+    "Tooltip": "显示项目状态，按下跳到 Orca 终端",
+    "UUID": "com.ulanzi.ulanzistudio.orcaprojects.project",
+    "Icon": "resources/idle.svg",
+    "PropertyInspectorPath": "property-inspector/inspector.html",
+    "Controllers": ["Keypad"],
+    "Devices": [],
+    "States": [{ "Image": "resources/idle.svg" }],
+    "SupportedInMultiActions": false
+  }],
+  "OS": [{ "Platform": "mac", "MinimumVersion": "10.15" }],
+  "Software": { "MinVersion": "3.0.11" }
+}

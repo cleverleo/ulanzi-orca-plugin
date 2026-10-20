@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { color-scheme: dark; font: 13px system-ui; }
+    body { margin: 16px; background: #202124; color: #eee; }
+    label { display: block; margin-top: 14px; }
+    input, select, button { box-sizing: border-box; width: 100%; padding: 8px; margin-top: 6px; color: inherit; background: #303236; border: 1px solid #62656a; border-radius: 5px; }
+    button { cursor: pointer; } p { line-height: 1.6; } #status { white-space: pre-wrap; } small { color: #bec2c8; }
+  </style>
+  <script src="../libs/js/constants.js"></script>
+  <script src="../libs/js/eventEmitter.js"></script>
+  <script src="../libs/js/timers.js"></script>
+  <script src="../libs/js/utils.js"></script>
+  <script src="../libs/js/ulanziApi.js"></script>
+</head>
+<body>
+  <h3>Orca 项目</h3>
+  <label>项目<select id="project"><option value="">请选择项目</option></select></label>
+  <label>按键名称（可选）<input id="label" maxlength="22" placeholder="默认使用项目名称"></label>
+  <label>Orca 环境（留空为本机）<input id="environment" placeholder="例如 macbook-home"></label>
+  <label>Orca CLI 路径<input id="cliPath" placeholder="/Applications/Orca.app/Contents/Resources/bin/orca"></label>
+  <button id="refresh" type="button">刷新项目</button>
+  <p id="status" role="status">正在连接插件…</p>
+  <small>按下项目键会跳到对应终端。多个 Agent 时优先选择需要确认的 Agent，其次是工作中的 Agent。约每 2.5 秒刷新状态。</small>
+  <script src="inspector.js"></script>
+</body>
+</html>
