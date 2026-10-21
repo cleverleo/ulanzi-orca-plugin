@@ -32,23 +32,20 @@
 
 ## 放在什么设备上？
 
-下面介绍 [Ulanzi Deck 官方系列](https://www.ulanzi.com/collections/deck)中的三款设备。有屏幕按键的 **D200H / D200X** 更适合把工作区和额度铺在桌面上；D100H 则适合作为旁边的旋钮搭档。
+下面介绍 [Ulanzi Deck 官方系列](https://www.ulanzi.com/collections/deck)中的两款设备：**D200H / D200X** 都带有屏幕按键，适合把工作区和额度铺在桌面上。
 
 <table>
 <tr>
-<th width="33%">D200H · 工作区看板</th>
-<th width="33%">D200X · 桌面控制台</th>
-<th width="33%">D100H · 旋钮搭档</th>
+<th width="50%">D200H · 工作区看板</th>
+<th width="50%">D200X · 桌面控制台</th>
 </tr>
 <tr>
 <td align="center"><a href="https://www.ulanzi.com/collections/deck/products/d200h-deck-dock"><img src="https://www.ulanzi.com/cdn/shop/files/1_1_11zon_e678237d-5cdf-4cec-896d-95a4067e58be.webp?v=1755757328&amp;width=416" width="260" alt="Ulanzi D200H，带 LCD 按键的桌面控制器"></a></td>
 <td align="center"><a href="https://www.ulanzi.com/collections/deck/products/d200x-creative-deck"><img src="https://www.ulanzi.com/cdn/shop/files/1_bf2aaaae-d9fb-487b-8f65-4b1ee097e7ae.webp?v=1774239184&amp;width=416" width="260" alt="Ulanzi D200X，带 LCD 按键与三个旋钮的控制台"></a></td>
-<td align="center"><a href="https://www.ulanzi.com/collections/deck/products/d100h-dial-creative-controller-i003"><img src="https://www.ulanzi.com/cdn/shop/files/10_9e93ab3d-c138-4884-9368-c82fe01ae20d.webp?v=1770891707&amp;width=416" width="260" alt="Ulanzi D100H，带三个顶部按钮的大旋钮控制器"></a></td>
 </tr>
 <tr>
 <td><b>13 个可自定义按键 + 1 个信息窗口</b>，集成七合一扩展坞。适合将常用工作区集中摆在一个页面上。<br><br><a href="https://www.ulanzi.com/collections/deck/products/d200h-deck-dock">官方产品介绍 →</a></td>
 <td><b>14 个 LCD 按键 + 3 个可按压旋钮</b>，集成八合一扩展坞。适合工作区、Agent 额度和其他 Studio 动作共用一个桌面控制台。<br><br><a href="https://www.ulanzi.com/collections/deck/products/d200x-creative-deck">官方产品介绍 →</a></td>
-<td><b>触觉反馈大旋钮 + 3 个顶部按钮</b>，通过蓝牙连接。可搭配带屏 Deck，用 Studio 的其他动作处理音量、时间线等旋钮操作。<br><br><a href="https://www.ulanzi.com/collections/deck/products/d100h-dial-creative-controller-i003">官方产品介绍 →</a></td>
 </tr>
 </table>
 
@@ -58,7 +55,6 @@
 | --- | --- | --- |
 | D200H | 8 个工作区 + 2 个额度 + 3 个其他 Studio 动作 | 留出常用快捷键，同时看住几个并行任务 |
 | D200X | 10 个工作区 + 2 个额度 + 2 个其他 Studio 动作 | 同屏查看更多 worktree；旋钮交给其他 Studio 动作 |
-| D100H | 作为 D200H / D200X 的补充 | 本插件当前提供屏幕按键动作，尚未实现旋钮交互 |
 
 <sub>产品图片与硬件信息来自上述 Ulanzi 官方产品页（2026-10-21 查阅）；图片保留官方链接，版权归原权利人。布局为本项目的使用建议，不代表这些型号均已完成真机兼容测试。当前插件面向 macOS，具体设备与 Studio 版本的兼容性需实际验证。</sub>
 
