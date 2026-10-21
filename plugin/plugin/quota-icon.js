@@ -9,8 +9,8 @@ const windowName = value => value.kind === 'session' && value.windowMinutes === 
 export function quotaIconSvg(provider, quota, now = Date.now()) {
   const windows = quota?.status === 'ok' ? (quota.windows || []).slice(0, 2) : [];
   const max = Math.max(0, ...windows.map(w => w.usedPercent));
-  const color = !windows.length || quota.stale ? '#94a3b8' : max >= 90 ? '#f87171' : max >= 70 ? '#fbbf24' : '#38bdf8';
-  const source = `${windows.length && quota?.ageUnknown ? t('时间未知 · ') : quota?.stale && windows.length ? t('缓存过期 · ') : ''}${(quota?.environmentId === '' ? t('本机') : quota?.environmentName) || t('自动读取全部环境')}`;
+  const color = !windows.length ? '#94a3b8' : max >= 90 ? '#f87171' : max >= 70 ? '#fbbf24' : '#38bdf8';
+  const source = (quota?.environmentId === '' ? t('本机') : quota?.environmentName) || t('自动读取全部环境');
   const title = quotaProviders[provider];
   let content;
   if (!windows.length) {

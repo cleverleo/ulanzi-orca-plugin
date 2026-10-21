@@ -26,12 +26,20 @@ test('quota normalization keeps zero distinct from missing limits and excludes a
   assert.equal(invalid.claude.status, 'unavailable');
   assert.equal(invalid.codex.status, 'unavailable');
 });
-test('fresh highest usage wins across environments; outage and stale cache cannot mask fresh data', () => {
+test('local quota takes priority; remote is a fallback only when local data is unavailable', () => {
   const sources = [
     { environmentId: '', environmentName: '本机', quotas: snapshot },
     { environmentId: 'remote', environmentName: 'Remote', quotas: { claude: { ...snapshot.claude, windows: [{ usedPercent: 80 }] } } },
   ];
+  assert.equal(selectQuota(quotaEntries(sources, 'claude', now)).environmentId, '');
+  sources[0].error = 'offline';
   assert.equal(selectQuota(quotaEntries(sources, 'claude', now)).environmentId, 'remote');
+  delete sources[0].error;
+  const updatedAt = sources[0].quotas.claude.updatedAt;
+  sources[0].quotas.claude.updatedAt = now - 600000;
+  assert.equal(selectQuota(quotaEntries(sources, 'claude', now)).environmentId, '');
+  assert.equal(selectQuota(quotaEntries(sources, 'claude', now)).stale, true);
+  sources[0].quotas.claude.updatedAt = updatedAt;
   sources[1].error = 'offline';
   assert.equal(selectQuota(quotaEntries(sources, 'claude', now)).environmentId, '');
   delete sources[1].error;

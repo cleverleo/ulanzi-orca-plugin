@@ -18,7 +18,7 @@ const english = {
   "重置": "Reset",
   "本机": "Local",
   "拖几个按钮就启用几个位置，按设备上从左到右、从上到下自动排序，无需设置编号。自动汇总 Orca 全部环境中的 worktree，按下跳到对应终端。": "Add as many buttons as you need. Slots follow device order, left to right, top to bottom. Worktrees from all Orca environments are assigned automatically. Press to open the terminal.",
-  "显示已用比例。自动读取本机和所有远程环境，优先显示已用比例最高的环境。每 30 秒与 Orca 同步；按下按钮也会重新读取。过期缓存会标注，不会当作最新额度。": "Shows usage from local and all remote environments, prioritizing the highest usage. Syncs with Orca every 30 seconds; press to refresh. Stale data is marked.",
+  "显示已用比例，优先显示本机额度；本机无额度数据时才使用远程环境，并显示来源。每 30 秒与 Orca 同步；按下按钮也会重新读取。": "Prefers local usage. Falls back to remote environments only when local data is unavailable, and displays the source. Syncs with Orca every 30 seconds; press to refresh.",
   "待确认": "Needs input",
   "工作中": "Working",
   "已完成": "Done",

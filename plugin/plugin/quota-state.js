@@ -43,10 +43,12 @@ export function quotaEntries(sources, provider, now = Date.now()) {
 }
 
 export function selectQuota(entries) {
+  const local = entries.find(entry => !entry.environmentId && entry.status === 'ok' && entry.windows?.length);
+  if (local) return local;
   const score = entry => Math.max(0, ...(entry.windows ?? []).map(w => w.usedPercent));
   return [...entries].sort((a, b) => {
     const rank = entry => entry.status === 'ok' ? entry.stale ? 1 : 0 : 2;
-    return rank(a) - rank(b) || score(b) - score(a) ||
+    return rank(a) - rank(b) || Number(!!a.environmentId) - Number(!!b.environmentId) || score(b) - score(a) ||
       (b.updatedAt || 0) - (a.updatedAt || 0) || (a.environmentId || '').localeCompare(b.environmentId || '');
   })[0];
 }

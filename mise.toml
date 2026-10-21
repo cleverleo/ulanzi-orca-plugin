@@ -2,8 +2,8 @@
 node = "20.18.0"
 
 [tasks.setup]
-description = "Install locked dependencies"
-run = "mise exec -- npm ci"
+description = "Prepare locked SDK, submodules and npm dependencies"
+run = "mise exec -- node scripts/setup.mjs"
 
 [tasks.check]
 description = "Verify state handling and plugin protocol"

@@ -40,7 +40,7 @@ $UD.onSendToPropertyInspector(message => {
     const rows = source.status === 'ok' && windows.length ? windows : [null];
     for (const window of rows) {
       const row = document.createElement('tr');
-      const values = [(source.environmentId === '' ? t('本机') : source.environmentName) + (source.stale && window ? t('（缓存）') : ''),
+      const values = [(source.environmentId === '' ? t('本机') : source.environmentName),
         (window ? windowLabel(window) : null) || '—', window ? `${Math.round(window.usedPercent * 10) / 10}%` : source.status === 'error' ? t('读取失败') : t('暂无额度'),
         window?.resetsAt ? new Date(window.resetsAt).toLocaleString() : '—'];
       for (const value of values) { const cell = document.createElement('td'); cell.textContent = value; row.append(cell); }

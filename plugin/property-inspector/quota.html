@@ -24,7 +24,7 @@
   <label><span data-i18n>绑定的 Agent</span><select id="provider"><option value="claude">Claude</option></select></label>
   <button id="refresh" type="button"><span data-i18n>刷新额度</span></button>
   <p id="status" role="status"><span data-i18n>正在读取 Orca 额度…</span></p>
-  <small><span data-i18n>显示已用比例。自动读取本机和所有远程环境，优先显示已用比例最高的环境。每 30 秒与 Orca 同步；按下按钮也会重新读取。过期缓存会标注，不会当作最新额度。</span></small>
+  <small><span data-i18n>显示已用比例，优先显示本机额度；本机无额度数据时才使用远程环境，并显示来源。每 30 秒与 Orca 同步；按下按钮也会重新读取。</span></small>
   <table><thead><tr><th><span data-i18n>环境</span></th><th><span data-i18n>周期</span></th><th><span data-i18n>已用</span></th><th><span data-i18n>重置</span></th></tr></thead><tbody id="entries"></tbody></table>
   <details><summary><span data-i18n>高级设置</span></summary><label><span data-i18n>Orca CLI 路径</span><input id="cliPath" placeholder="/Applications/Orca.app/Contents/Resources/bin/orca"></label></details>
   <script src="quota-inspector.js"></script>

@@ -9,7 +9,6 @@
 ```sh
 mise trust
 mise install
-git clone --recurse-submodules https://github.com/UlanziTechnology/UlanziDeckPlugin-SDK.git vendor/UlanziDeckPlugin-SDK
 mise run setup
 mise run check
 mise run integration
@@ -18,7 +17,9 @@ mise run probe
 mise run package
 ```
 
-官方 SDK 主仓库版本以 `sdk-versions.json` 为准，构建会验证版本；已有 vendor 目录时无需再次 clone。构建前应按该文件 checkout 主仓库，再执行 `git submodule update --init --recursive`。构建目录自带 SDK 和 ws，无需目标电脑安装 npm 依赖。任务显式通过 `mise exec` 启动 Node.js，避免本机 shell 的 PATH 配置覆盖固定版本。
+`mise run setup` 自动克隆官方 SDK、检出 `sdk-versions.json` 指定提交、初始化子模块并验证全部版本，然后执行 `npm ci`。已有干净 SDK checkout 可重复运行；存在本地改动时会停止，避免覆盖修改。首次初始化需要访问 GitHub 和 npm。构建目录自带 SDK 和 ws，无需目标电脑安装 npm 依赖。任务显式通过 `mise exec` 启动 Node.js，避免本机 shell 的 PATH 配置覆盖固定版本。
+
+新 worktree 中执行 `mise install`、`mise run setup` 即可准备环境；若提示配置未信任，先检查配置并运行 `mise trust`。每个 worktree 独立维护 `node_modules/`、`vendor/` 和 `dist/`，可以分别构建和测试。`mise run install` / `mise run update` 共用本机 Studio 的同一插件安装位置，最后更新的 worktree 版本生效。
 
 ## 安装和使用
 
@@ -55,7 +56,7 @@ Orca 的 `environment list` 用于自动发现远程环境；随后并发读取�
 
 只提供一种「Agent 额度」按钮。在每个按钮的设置页选择绑定的 Agent 类型，可以分别配置 Claude、Codex、Cursor、Antigravity 等。它们不参与工作区按钮的容量或位置排序。
 
-图标显示**已用比例**及对应窗口的重置倒计时。支持会话、每周和每月窗口；缺失的窗口不会补成 0%。单窗口放大显示，双窗口分别显示。环境自动发现；同一类型在多个环境都有数据时，优先选新鲜有效数据中已用比例最高的环境，设置页列出所有环境及窗口明细。数据超过 5 分钟会标为过期缓存；读取失败或 Orca 未提供额度时明确显示状态。
+图标显示**已用比例**及对应窗口的重置倒计时。支持会话、每周和每月窗口；缺失的窗口不会补成 0%。单窗口放大显示，双窗口分别显示。环境自动发现；同一类型优先显示本机额度；本机无有效数据时，才回退到远程环境的新鲜有效数据，设置页列出所有环境及窗口明细。读取失败或 Orca 未提供额度时明确显示状态。
 
 每 30 秒读取一次 Orca 当前额度快照，按下按钮或配置页刷新也会重新读取。这里与 Orca 的数据显示同步，刷新不强制向供应商发起额外查询。读取的是每个环境在 Orca 当前额度目标下展示的账号额度，不汇总已用比例或自动切换账号。
 
