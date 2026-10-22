@@ -5,7 +5,7 @@ import { assignSlots, eligibleWorktrees, layoutSlots, mountedSlots } from '../pl
 import { projectKey, projectState } from '../plugin/plugin/project-state.js';
 import { OrcaFleet } from '../plugin/plugin/orca-fleet.js';
 
-const project = (id, extra = {}) => ({ worktreeId: `repo::/${id}`, hostId: 'local', repo: id, liveTerminalCount: 1, ...extra });
+const project = (id, extra = {}) => ({ worktreeId: `repo::/${id}`, hostId: 'local', repo: id, liveTerminalCount: 1, agents: [{ agentType: 'codex', state: 'idle' }], ...extra });
 const a = project('a');
 const b = project('b');
 const c = project('c');
@@ -112,4 +112,11 @@ test('closing any workspace reorders all mounted slots by latest activity, inclu
   const survivors = [updated[0], { ...first[2], lastActivityAt: 600 }];
   assert.deepEqual(assignSlots(slots, survivors, [1, 3], updated.map(projectKey)).slice(0, 4),
     [projectKey(first[2]), null, projectKey(first[0]), null]);
+});
+
+test('plain terminals do not occupy slots while idle and completed Agents remain visible', () => {
+  const rows = [project('shell', { agents: [] }), project('terminal', { agents: [{ agentType: 'terminal', state: 'working' }] }),
+    project('idle'), project('done', { agents: [{ agentType: 'claude', state: 'done' }] }),
+    project('custom', { agents: [{ agentType: 'custom-agent', state: 'working' }] })];
+  assert.deepEqual(eligibleWorktrees(rows).map(p => p.repo), ['idle', 'done', 'custom']);
 });

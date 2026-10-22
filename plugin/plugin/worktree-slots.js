@@ -24,7 +24,9 @@ export function layoutSlots(entries) {
 }
 
 export function eligibleWorktrees(projects) {
-  return projects.filter(p => !p.isArchived && ((p.liveTerminalCount ?? 0) > 0 ||
+  return projects.filter(p => !p.isArchived &&
+    (p.agents ?? []).some(a => a.agentType && !['terminal', 'shell'].includes(a.agentType.toLowerCase())) &&
+    ((p.liveTerminalCount ?? 0) > 0 ||
     (p.unverifiableTerminalCount ?? 0) > 0 || p.terminalVerdict === 'unverifiable' ||
     (p.agents ?? []).some(a => ['working', 'waiting', 'blocked'].includes(a.state))));
 }

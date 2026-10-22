@@ -119,7 +119,7 @@ mise run install
 | 🟡 待确认 | Agent 正在等待输入、确认或解除阻塞 |
 | 🔵 工作中 | Agent 正在执行任务 |
 | 🟢 已完成 | 当前一轮完成，整个项目可能仍未完成 |
-| ⚪ 空闲 | Agent 空闲，或只有存活的普通终端 |
+| ⚪ 空闲 | Agent 空闲 |
 | 空坑位 | 这个位置还没有运行中的 worktree |
 | 🟣 未知 | 环境不可达、查询失败或无法确定状态 |
 
@@ -151,3 +151,5 @@ mise run quota-probe  # 检查脱敏后的额度数据
 基于 [Ulanzi 官方插件 SDK](https://github.com/UlanziTechnology/UlanziDeckPlugin-SDK) 和 [Orca](https://github.com/stablyai/orca)。Agent 图标来自 Lobe Icons。
 
 第三方 SDK 使用 Apache-2.0，ws 和 Lobe Icons 使用 MIT；构建保留对应许可声明。
+
+普通 Terminal / Shell 工作区不占坑位；只展示检测到 Agent 的工作区，Agent 空闲或本轮完成时仍保留。

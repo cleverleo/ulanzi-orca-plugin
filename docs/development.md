@@ -46,7 +46,7 @@ Orca 的 `environment list` 用于自动发现远程环境；随后并发读取�
 | 待确认 | Agent waiting/blocked，或程序报告阻塞 |
 | 工作中 | Agent working |
 | 已完成 | Agent done，代表当前轮完成，不代表整个项目完成 |
-| 空闲 | Agent idle，或只有存活的普通终端 |
+| 空闲 | Agent idle |
 | 空坑位 | 此位置尚未分配运行中的 worktree |
 | 未知 | 查询失败、无法确认终端存活或未知的 Agent 状态 |
 
@@ -91,3 +91,5 @@ mise exec -- node scripts/render-readme.mjs
 ```
 
 输出为 `docs/images/overview.svg` 和 `docs/images/slots.svg`。品牌图标沿用插件的 Lobe Icons 资源及其 MIT 许可；插图并非设备实拍或用户使用记录。
+
+普通 Terminal / Shell 工作区不占坑位；只展示检测到 Agent 的工作区，Agent 空闲或本轮完成时仍保留。

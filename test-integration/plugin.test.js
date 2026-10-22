@@ -88,8 +88,8 @@ console.log(JSON.stringify({ok:true,result}));`, { mode: 0o755 });
   const withoutQuota = await waitFor(m => messages.indexOf(m) >= quotaMountedAt && m.cmd === 'sendToPropertyInspector' && m.payload.enabledSlots?.length === 2);
   assert.deepEqual(withoutQuota.payload.enabledSlots, [1, 2]);
   await writeFile(fixture, JSON.stringify({ worktrees: [demo,
-    { worktreeId: 'repo::/beta', hostId: 'local', repo: 'Beta', liveTerminalCount: 1, lastActivityAt: 200 },
-    { worktreeId: 'repo::/gamma', hostId: 'local', repo: 'Gamma', liveTerminalCount: 1, lastActivityAt: 100 },
+    { worktreeId: 'repo::/beta', hostId: 'local', repo: 'Beta', agents: [{ agentType: 'claude', state: 'idle' }], liveTerminalCount: 1, lastActivityAt: 200 },
+    { worktreeId: 'repo::/gamma', hostId: 'local', repo: 'Gamma', agents: [{ agentType: 'codex', state: 'idle' }], liveTerminalCount: 1, lastActivityAt: 100 },
   ] }));
   socket.send(JSON.stringify({ ...address, cmd: 'sendToPlugin', payload: { type: 'projects' } }));
   const expanded = await waitFor(m => m.cmd === 'sendToPropertyInspector' && m.payload.projects?.length === 3 && m.payload.slots[1].project?.name === 'Beta');
@@ -112,8 +112,8 @@ console.log(JSON.stringify({ok:true,result}));`, { mode: 0o755 });
   assert.equal(messages.filter(m => m.cmd === 'state').length, hiddenCount);
   // Activity changes while hidden must take effect when the page returns.
   await writeFile(fixture, JSON.stringify({ worktrees: [demo,
-    { worktreeId: 'repo::/beta', hostId: 'local', repo: 'Beta', liveTerminalCount: 1, lastActivityAt: 200 },
-    { worktreeId: 'repo::/gamma', hostId: 'local', repo: 'Gamma', liveTerminalCount: 1, lastActivityAt: 900 },
+    { worktreeId: 'repo::/beta', hostId: 'local', repo: 'Beta', agents: [{ agentType: 'claude', state: 'idle' }], liveTerminalCount: 1, lastActivityAt: 200 },
+    { worktreeId: 'repo::/gamma', hostId: 'local', repo: 'Gamma', agents: [{ agentType: 'codex', state: 'idle' }], liveTerminalCount: 1, lastActivityAt: 900 },
   ] }));
   socket.send(JSON.stringify({ ...emptyAddress, cmd: 'setactive', active: true }));
   const resumedAt = messages.length;
