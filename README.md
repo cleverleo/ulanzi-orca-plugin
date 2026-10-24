@@ -123,7 +123,7 @@ mise run install
 | 空坑位 | 这个位置还没有运行中的 worktree |
 | 🟣 未知 | 环境不可达、查询失败或无法确定状态 |
 
-多个 Agent 共用同一个 worktree 时，只占一个坑位，优先显示等待确认、异常或工作中的 Agent。图标支持 Claude、Codex、Cursor、Gemini、OpenCode、Grok、Antigravity；其他类型使用终端图标。
+多个 Agent 共用同一个 worktree 时，只占一个坑位，优先显示等待确认、异常或工作中的 Agent。图标支持 Claude、Codex、Cursor、Gemini、OpenCode、Grok、Antigravity、Hermes；其他类型使用终端图标。
 
 ## 开发与验证
 

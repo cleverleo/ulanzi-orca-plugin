@@ -5,5 +5,6 @@ SVG assets vendored from [Lobe Icons](https://github.com/lobehub/lobe-icons/tree
 - `claude.svg`: `claude-color.svg`
 - `codex.svg`, `gemini.svg` (`gemini-color.svg`), `cursor.svg`, `opencode.svg`, `grok.svg`
 - `antigravity.svg`: `antigravity-color.svg`
+- `hermes.svg`: `hermesagent.svg` (downloaded 2026-10-24)
 
 The MIT license is included in `LICENSE`. Brand marks retain their respective owners. The renderer preserves paths and explicit brand colors, uses white for `currentColor` on dark keys, and adds project/worktree text and state around the mark.

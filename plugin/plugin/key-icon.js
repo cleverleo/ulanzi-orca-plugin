@@ -4,8 +4,8 @@ import { createHash } from 'node:crypto';
 import { labels, primaryAgent, worktreeName } from './project-state.js';
 
 export const colors = { waiting: '#fbbf24', working: '#38bdf8', done: '#4ade80', idle: '#94a3b8', error: '#f87171', unknown: '#a78bfa', offline: '#64748b', empty: '#475569' };
-const aliases = { 'claude-code': 'claude', claude: 'claude', codex: 'codex', 'codex-cli': 'codex', gemini: 'gemini', 'gemini-cli': 'gemini', cursor: 'cursor', 'cursor-agent': 'cursor', opencode: 'opencode', grok: 'grok', 'grok-bot': 'grok', antigravity: 'antigravity' };
-const names = { claude: 'Claude', codex: 'Codex', gemini: 'Gemini', cursor: 'Cursor', opencode: 'OpenCode', grok: 'Grok', antigravity: 'Antigravity' };
+const aliases = { 'claude-code': 'claude', claude: 'claude', codex: 'codex', 'codex-cli': 'codex', gemini: 'gemini', 'gemini-cli': 'gemini', cursor: 'cursor', 'cursor-agent': 'cursor', opencode: 'opencode', grok: 'grok', 'grok-bot': 'grok', antigravity: 'antigravity', hermes: 'hermes' };
+const names = { claude: 'Claude', codex: 'Codex', gemini: 'Gemini', cursor: 'Cursor', opencode: 'OpenCode', grok: 'Grok', antigravity: 'Antigravity', hermes: 'Hermes' };
 const logos = Object.fromEntries(Object.keys(names).map(type => {
   const svg = readFileSync(new URL(`../resources/agents/${type}.svg`, import.meta.url), 'utf8');
   // Preserve the brand paths and explicit colors, with a white default on dark keys.
