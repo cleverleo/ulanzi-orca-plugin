@@ -123,7 +123,7 @@ mise run install
 | 空坑位 | 这个位置还没有运行中的 worktree |
 | 🟣 未知 | 环境不可达、查询失败或无法确定状态 |
 
-多个 Agent 共用同一个 worktree 时，只占一个坑位，优先显示等待确认、异常或工作中的 Agent。图标支持 Claude、Codex、Cursor、Gemini、OpenCode、Grok、Antigravity、Hermes；其他类型使用终端图标。
+多个 Agent 共用同一个 worktree 时，只占一个坑位，优先显示等待确认、异常或工作中的 Agent。图标覆盖本机 Orca 完整目录中的 45 种 Agent（2026-10-24 核对），包括 Hermes、Pi、OMP、Droid、Kiro 等；版本变体共用品牌图标并保留各自名称。完整列表与图标来源见 [Agent 图标说明](plugin/resources/agents/README.md)，目录外类型使用终端图标。
 
 ## 开发与验证
 
@@ -148,7 +148,7 @@ mise run quota-probe  # 检查脱敏后的额度数据
 
 ## 致谢
 
-基于 [Ulanzi 官方插件 SDK](https://github.com/UlanziTechnology/UlanziDeckPlugin-SDK) 和 [Orca](https://github.com/stablyai/orca)。Agent 图标来自 Lobe Icons。
+基于 [Ulanzi 官方插件 SDK](https://github.com/UlanziTechnology/UlanziDeckPlugin-SDK) 和 [Orca](https://github.com/stablyai/orca)。Agent 图标来自 Lobe Icons 和各产品官网或官方仓库。
 
 第三方 SDK 使用 Apache-2.0，ws 和 Lobe Icons 使用 MIT；构建保留对应许可声明。
 

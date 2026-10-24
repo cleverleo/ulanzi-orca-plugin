@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  
+  
+  <!-- 4x2 grid of circles matching bombas.png -->
+  <!-- Top row -->
+  <circle class="circle" cx="6" cy="8" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <circle class="circle" cx="14" cy="8" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <circle class="circle" cx="22" cy="8" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <circle class="circle" cx="30" cy="8" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  
+  <!-- Bottom row -->
+  <circle class="circle" cx="6" cy="24" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <circle class="circle" cx="14" cy="24" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <circle class="circle" cx="22" cy="24" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <circle class="circle" cx="30" cy="24" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  
+  <!-- Rotation indicators (small dots that make rotation visible) -->
+  <circle cx="6" cy="5" r="0.8" fill="#1A1A1A" class="circle">
+    <animateTransform attributeName="transform" type="rotate" values="0 6 8;360 6 8" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="14" cy="5" r="0.8" fill="#1A1A1A" class="circle">
+    <animateTransform attributeName="transform" type="rotate" values="0 14 8;-360 14 8" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="22" cy="5" r="0.8" fill="#1A1A1A" class="circle">
+    <animateTransform attributeName="transform" type="rotate" values="0 22 8;360 22 8" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="30" cy="5" r="0.8" fill="#1A1A1A" class="circle">
+    <animateTransform attributeName="transform" type="rotate" values="0 30 8;-360 30 8" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+  
+  <circle cx="6" cy="21" r="0.8" fill="#1A1A1A" class="circle">
+    <animateTransform attributeName="transform" type="rotate" values="0 6 24;-360 6 24" dur="2.2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="14" cy="21" r="0.8" fill="#1A1A1A" class="circle">
+    <animateTransform attributeName="transform" type="rotate" values="0 14 24;360 14 24" dur="2.8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="22" cy="21" r="0.8" fill="#1A1A1A" class="circle">
+    <animateTransform attributeName="transform" type="rotate" values="0 22 24;-360 22 24" dur="2.6s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="30" cy="21" r="0.8" fill="#1A1A1A" class="circle">
+    <animateTransform attributeName="transform" type="rotate" values="0 30 24;360 30 24" dur="1.9s" repeatCount="indefinite"/>
+  </circle>
+</svg>

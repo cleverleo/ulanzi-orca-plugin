@@ -27,7 +27,7 @@ mise run package
 
 把同一种「Orca 工作区」按钮拖到设备上即可：拖几个就启用几个位置，按从左到右、从上到下自动编号，不需要选择坑位或环境。一个按钮对应一个 worktree，同项目的多个 worktree 分别显示，空位显示「空坑位」。
 
-按键图标直接绘制 Agent 品牌图标、项目名、Orca 侧边栏的 worktree 显示名称（例如 Health check all l2）和状态，不依赖 Studio 的文字叠加设置。优先使用 Orca 的 displayName；未设置显示名称时，回退到 worktree 目录名，主工作区回退到 main。支持 Claude、Codex、Gemini、Cursor、OpenCode、Grok；其他 Agent 显示终端图标和实际类型名称，普通终端显示 Terminal。多个 Agent 时优先采用需要确认、异常或工作中的 Agent 图标，图标上不再额外显示 Agent 名称文字，配置页仍可查看检测到的类型。长名称自动换行或省略。 Agent 图标使用 oversize 背景，透明度为 35%，文字区域叠加半透明灰底。SVG 使用单一根节点和显式图形变换，避免 Qt 对嵌套 SVG 视口的缩放差异。
+按键图标直接绘制 Agent 品牌图标、项目名、Orca 侧边栏的 worktree 显示名称（例如 Health check all l2）和状态，不依赖 Studio 的文字叠加设置。优先使用 Orca 的 displayName；未设置显示名称时，回退到 worktree 目录名，主工作区回退到 main。图标覆盖 2026-10-24 本机 Orca 完整目录的 45 种 Agent，完整名称与共用图标映射位于 `plugin/plugin/agent-catalog.js`，资源来源见 `plugin/resources/agents/README.md`；目录外 Agent 显示终端图标和实际类型名称，普通终端显示 Terminal。多个 Agent 时优先采用需要确认、异常或工作中的 Agent 图标，图标上不再额外显示 Agent 名称文字，配置页仍可查看检测到的类型。长名称自动换行或省略。 Agent 图标使用 oversize 背景，透明度为 35%，文字区域叠加半透明灰底。SVG 使用单一根节点和显式图形变换，避免 Qt 对嵌套 SVG 视口的缩放差异。
 
 Orca 的 `environment list` 用于自动发现远程环境；随后并发读取本机和各远端的 `worktree ps`，使用各自环境路由跳转。新增或移除环境后自动同步，按钮无需配置。CLI 默认路径为 `/Applications/Orca.app/Contents/Resources/bin/orca`，可自定义绝对路径。
 

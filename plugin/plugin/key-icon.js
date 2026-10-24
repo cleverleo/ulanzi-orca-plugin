@@ -1,12 +1,12 @@
 import { t } from './i18n.js';
+import { agentCatalog, canonicalAgentType } from './agent-catalog.js';
 import { readFileSync, mkdirSync, writeFileSync, existsSync, readdirSync, statSync, unlinkSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { labels, primaryAgent, worktreeName } from './project-state.js';
 
 export const colors = { waiting: '#fbbf24', working: '#38bdf8', done: '#4ade80', idle: '#94a3b8', error: '#f87171', unknown: '#a78bfa', offline: '#64748b', empty: '#475569' };
-const aliases = { 'claude-code': 'claude', claude: 'claude', codex: 'codex', 'codex-cli': 'codex', gemini: 'gemini', 'gemini-cli': 'gemini', cursor: 'cursor', 'cursor-agent': 'cursor', opencode: 'opencode', grok: 'grok', 'grok-bot': 'grok', antigravity: 'antigravity', hermes: 'hermes' };
-const names = { claude: 'Claude', codex: 'Codex', gemini: 'Gemini', cursor: 'Cursor', opencode: 'OpenCode', grok: 'Grok', antigravity: 'Antigravity', hermes: 'Hermes' };
-const logos = Object.fromEntries(Object.keys(names).map(type => {
+const artworkType = type => agentCatalog[canonicalAgentType(type)]?.artwork;
+const logos = Object.fromEntries([...new Set(Object.values(agentCatalog).map(agent => agent.artwork))].map(type => {
   const svg = readFileSync(new URL(`../resources/agents/${type}.svg`, import.meta.url), 'utf8');
   // Preserve the brand paths and explicit colors, with a white default on dark keys.
   const rootAttributes = /<svg\b([^>]*)>/.exec(svg)[1];
@@ -19,7 +19,7 @@ const logos = Object.fromEntries(Object.keys(names).map(type => {
   return [type, `<g transform="translate(${-13 - viewBox[0] * scale} ${-13 - viewBox[1] * scale}) scale(${scale})" fill="#f8fafc" ${attributes.replace(/\sfill="[^"]*"/, '')}>${content}</g>`];
 }));
 const terminal = '<g transform="translate(-13 -13) scale(7.083333)" stroke="#cbd5e1" stroke-width="1.4" fill="none"><rect x="1" y="3" width="22" height="18" rx="3"/><path d="m5 8 4 4-4 4m8 0h6"/></g>';
-export const agentArtwork = type => logos[aliases[type]] || terminal;
+export const agentArtwork = type => logos[artworkType(type)] || terminal;
 const escape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[ch]);
 const units = char => /[^\u0000-\u00ff]/.test(char) ? 2 : 1;
 function truncate(value, max) {
@@ -50,9 +50,9 @@ function projectLines(value, max = 16) {
 
 export function keyIconSvg({ project, slot, state }) {
   const agent = primaryAgent(project || {});
-  const type = aliases[agent?.agentType?.toLowerCase()];
-  const types = [...new Set((project?.agents ?? []).map(a => aliases[a.agentType?.toLowerCase()] || a.agentType).filter(Boolean))];
-  const agentLabel = types.length ? types.map(t => names[t] || t).join(' + ') : 'Terminal';
+  const type = artworkType(agent?.agentType);
+  const types = [...new Set((project?.agents ?? []).map(a => canonicalAgentType(a.agentType)).filter(Boolean))];
+  const agentLabel = types.length ? types.map(t => agentCatalog[t]?.name || t).join(' + ') : 'Terminal';
   const color = colors[state] || colors.unknown;
   const lines = projectLines(project?.repo || project?.displayName || `Orca ${slot}`, 12);
   const worktree = project ? project.displayName || worktreeName(project) : t('等待 worktree');
