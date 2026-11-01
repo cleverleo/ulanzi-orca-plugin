@@ -48,18 +48,28 @@ function projectLines(value, max = 16) {
   return chars.length ? [first.trim(), truncate(chars.join('').trim(), max)] : [first.trim()];
 }
 
-export function keyIconSvg({ project, slot, state, dimmed = false }) {
+export const RAINBOW_FRAMES = 12;
+const hue = degrees => {
+  const f = n => { const k = (n + degrees / 30) % 12; return Math.round(255 * (0.5 - 0.5 * Math.max(-1, Math.min(k - 3, 9 - k, 1)))); };
+  return `#${[f(0), f(8), f(4)].map(v => v.toString(16).padStart(2, '0')).join('')}`;
+};
+const rainbowStops = [0, 60, 120, 180, 240, 300, 360].map((h, i) => `<stop offset="${(i / 6).toFixed(3)}" stop-color="${hue(h)}"/>`).join('');
+
+// `rainbow` is an animation frame index: a rotating rainbow border and a hue-cycling badge.
+export function keyIconSvg({ project, slot, state, rainbow = null }) {
   const agent = primaryAgent(project || {});
   const type = artworkType(agent?.agentType);
   const types = [...new Set((project?.agents ?? []).map(a => canonicalAgentType(a.agentType)).filter(Boolean))];
   const agentLabel = types.length ? types.map(t => agentCatalog[t]?.name || t).join(' + ') : 'Terminal';
-  const color = colors[state] || colors.unknown;
+  const frame = Number.isInteger(rainbow) ? ((rainbow % RAINBOW_FRAMES) + RAINBOW_FRAMES) % RAINBOW_FRAMES : null;
+  const color = frame === null ? colors[state] || colors.unknown : hue(frame * 360 / RAINBOW_FRAMES);
+  const rainbowDefs = frame === null ? '' : `<linearGradient id="rainbow" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="144" y2="144" gradientTransform="rotate(${frame * 360 / RAINBOW_FRAMES} 72 72)">${rainbowStops}</linearGradient>`;
   const lines = projectLines(project?.repo || project?.displayName || `Orca ${slot}`, 12);
   const worktree = project ? project.displayName || worktreeName(project) : t('等待 worktree');
   const worktreeLines = projectLines(worktree, 13);
   return `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
 <title>${escape(project?.repo || `Orca ${slot}`)} · ${escape(worktree)} · ${escape(agentLabel)} · ${escape(t(labels[state] || labels.unknown))}</title>
-<defs><clipPath id="key-clip"><rect x="4" y="4" width="136" height="136" rx="12"/></clipPath></defs>
+<defs>${rainbowDefs}<clipPath id="key-clip"><rect x="4" y="4" width="136" height="136" rx="12"/></clipPath></defs>
 <rect width="144" height="144" rx="16" fill="#111827"/>
 <g clip-path="url(#key-clip)">
 <g opacity="0.35">${logos[type] || terminal}</g>
@@ -67,10 +77,11 @@ export function keyIconSvg({ project, slot, state, dimmed = false }) {
 <g font-family="Arial, PingFang SC, sans-serif" text-anchor="middle">
 ${lines.map((line, i) => `<text x="72" y="${lines.length === 1 ? 60 : 45 + i * 21}" font-size="18" font-weight="bold" fill="#ffffff">${escape(line)}</text>`).join('')}
 ${worktreeLines.map((line, i) => `<text x="72" y="${worktreeLines.length === 1 ? 100 : 87 + i * 21}" font-size="17" font-weight="bold" fill="#ffffff">${escape(line)}</text>`).join('')}
-<rect x="12" y="115" width="120" height="19" rx="7" fill="${color}"${dimmed ? ' fill-opacity="0.25"' : ''}/>
-<text x="72" y="130" font-size="12" font-weight="bold" fill="${dimmed ? color : '#111827'}">${slot} · ${escape(t(labels[state] || labels.unknown))}</text>
+<rect x="12" y="115" width="120" height="19" rx="7" fill="${color}"/>
+<text x="72" y="130" font-size="12" font-weight="bold" fill="#111827">${slot} · ${escape(t(labels[state] || labels.unknown))}</text>
 </g></g>
-${dimmed ? '' : `<rect x="3" y="3" width="138" height="138" rx="13" fill="none" stroke="${color}" stroke-width="3"/>`}
+${frame === null ? `<rect x="3" y="3" width="138" height="138" rx="13" fill="none" stroke="${color}" stroke-width="3"/>`
+    : '<rect x="3.5" y="3.5" width="137" height="137" rx="13" fill="none" stroke="url(#rainbow)" stroke-width="5"/>'}
 </svg>`;
 }
 

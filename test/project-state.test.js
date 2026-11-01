@@ -60,3 +60,24 @@ test('remote GUI success still reveals the pane on this desktop and local failur
   navigated = false;
   await assert.rejects(client.switchProject({ worktreeId: terminal.worktreeId }), /无法在本机/);
 });
+
+test('local worktrees open via worktree.activate first and fall back to the terminal', async () => {
+  const calls = [];
+  let navigated = true;
+  let terminals = [];
+  const run = async (file, args) => { calls.push(args); return { stdout: JSON.stringify({ ok: true,
+    result: args[1] === 'list' ? { terminals } : { focus: { navigated: true } } }) }; };
+  const client = new OrcaClient({ run, activate: async (...args) => { calls.push(['activate', args[1]]); return navigated; } });
+  const result = await client.switchProject({ worktreeId: 'repo::/chat' });
+  assert.equal(result.focus.worktree, true);
+  assert.deepEqual(calls, [['activate', 'repo::/chat']]);
+  navigated = false;
+  await assert.rejects(client.switchProject({ worktreeId: 'repo::/chat' }), /未能打开/);
+  terminals = [{ worktreeId: 'repo::/chat', handle: 'fallback' }];
+  calls.length = 0;
+  await client.switchProject({ worktreeId: 'repo::/chat' });
+  assert.deepEqual(calls.at(-1).slice(0, 4), ['terminal', 'switch', '--terminal', 'fallback']);
+  const remote = new OrcaClient({ run: async () => ({ stdout: JSON.stringify({ ok: true, result: { terminals: [] } }) }),
+    environment: 'home', activate: async () => { throw new Error('unexpected'); } });
+  await assert.rejects(remote.switchProject({ worktreeId: 'repo::/chat' }), /没有可跳转的终端/);
+});

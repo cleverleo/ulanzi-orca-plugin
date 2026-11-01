@@ -16,12 +16,21 @@ async function revealOnDesktop(cliPath, environment, terminal) {
   return JSON.parse(stdout).navigated === true;
 }
 
+async function activateOnDesktop(cliPath, worktreeId) {
+  const env = { ...process.env };
+  for (const key of Object.keys(env)) if (key.startsWith('ORCA_')) delete env[key];
+  const { stdout } = await execute(process.execPath, [fileURLToPath(new URL('./orca-activate-worker.cjs', import.meta.url)),
+    cliPath, worktreeId], { env, timeout: 12000, maxBuffer: 65536 });
+  return JSON.parse(stdout).navigated === true;
+}
+
 export class OrcaClient {
-  constructor({ cliPath = defaultCli, environment = '', run = execute, reveal = revealOnDesktop } = {}) {
+  constructor({ cliPath = defaultCli, environment = '', run = execute, reveal = revealOnDesktop, activate = activateOnDesktop } = {}) {
     this.cliPath = cliPath;
     this.environment = environment.trim();
     this.run = run;
     this.reveal = reveal;
+    this.activate = activate;
   }
 
   async call(args) {
@@ -53,9 +62,17 @@ export class OrcaClient {
   }
 
   async switchProject(project) {
+    // Local worktrees open the same way as clicking them in Orca's sidebar,
+    // which also covers native chat sessions that have no terminal.
+    if (!this.environment) {
+      let navigated = false;
+      try { navigated = await this.activate(this.cliPath, project.worktreeId); } catch { /* Fall back to the terminal below. */ }
+      if (navigated) return { focus: { navigated: true, worktree: true } };
+    }
     const listing = await this.call(['terminal', 'list', '--worktree', `id:${project.worktreeId}`, '--limit', '1000']);
     const terminal = chooseTerminal(listing.terminals ?? [], project);
-    if (!terminal) throw new Error(t('项目没有可跳转的终端，请先在 Orca 打开终端'));
+    if (!terminal) throw new Error(this.environment ? t('项目没有可跳转的终端，请先在 Orca 打开终端')
+      : format('Orca 未能打开该 worktree，请重试', 'Orca could not open this worktree. Try again.'));
     // Handles are resolved immediately before use; never persist them in settings.
     const result = await this.call(['terminal', 'switch', '--terminal', terminal.handle]);
     // A GUI on the remote Mac can report navigated:true without revealing this desktop.

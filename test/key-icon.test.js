@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { agentArtwork, keyIconSvg } from '../plugin/plugin/key-icon.js';
+import { agentArtwork, keyIconSvg, RAINBOW_FRAMES } from '../plugin/plugin/key-icon.js';
 import { agentCatalog } from '../plugin/plugin/agent-catalog.js';
 import { worktreeName, primaryAgent } from '../plugin/plugin/project-state.js';
 
@@ -60,4 +60,15 @@ test('unknown agents and plain shells keep accurate labels; text is escaped', ()
   assert.ok(svg.includes('custom-agent'));
   assert.ok(keyIconSvg({ slot: 10, state: 'empty' }).includes('Terminal'));
   assert.ok(!svg.includes('fill="currentColor"'));
+});
+
+test('rainbow frames rotate a gradient border and cycle the badge hue', () => {
+  const project = { repo: 'repo', displayName: 'chat', unread: true, agents: [{ agentType: 'claude', state: 'done' }] };
+  const still = keyIconSvg({ project, slot: 1, state: 'done' });
+  const frames = Array.from({ length: RAINBOW_FRAMES }, (_, i) => keyIconSvg({ project, slot: 1, state: 'done', rainbow: i }));
+  assert.doesNotMatch(still, /url\(#rainbow\)/);
+  assert.equal(new Set(frames).size, RAINBOW_FRAMES);
+  assert.match(frames[0], /stroke="url\(#rainbow\)"/);
+  assert.match(frames[0], /fill="#ff0000"/);
+  assert.equal(keyIconSvg({ project, slot: 1, state: 'done', rainbow: RAINBOW_FRAMES }), frames[0]);
 });

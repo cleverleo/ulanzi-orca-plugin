@@ -3,7 +3,7 @@ import UlanziApi from '../sdk-node/index.js';
 import { defaultCli } from './orca-client.js';
 import { OrcaFleet } from './orca-fleet.js';
 import { publicProject, projectKey } from './project-state.js';
-import { keyIconSvg, writeKeyIcon } from './key-icon.js';
+import { keyIconSvg, writeKeyIcon, RAINBOW_FRAMES } from './key-icon.js';
 import { assignSlots, mountedSlots, layoutSlots, slotProject } from './worktree-slots.js';
 import { diagnostic } from './diagnostics.js';
 import { isQuotaAction } from './quota-state.js';
@@ -17,7 +17,7 @@ const sources = new Map();
 const pressed = new Set();
 let globalSettings = {};
 let globalsLoaded = false;
-let blinkOff = false;
+let rainbowFrame = 0;
 
 function source(settings) {
   const cliPath = settings.cliPath || defaultCli;
@@ -74,13 +74,13 @@ function render(context) {
   const project = slotProject(data, settings.slot);
   const state = data.error || !data.updatedAt ? 'unknown' :
     project ? publicProject(project).state : 'empty';
-  // Blink unread worktrees (Orca's sidebar bell) until the user opens them.
-  const dimmed = state !== 'unknown' && project?.unread === true && blinkOff;
-  const signature = keyIconSvg({ project, slot: settings.slot, state, dimmed });
+  // Animate unread worktrees (Orca's sidebar bell) until the user opens them.
+  const rainbow = state !== 'unknown' && project?.unread === true ? rainbowFrame : null;
+  const signature = keyIconSvg({ project, slot: settings.slot, state, rainbow });
   if (settings.lastRender !== signature) {
     api.setPathIcon(context, writeKeyIcon(signature, context));
     settings.lastRender = signature;
-    settings.lastDimmed = dimmed;
+    settings.lastAnimated = rainbow !== null;
   }
 }
 
@@ -213,13 +213,13 @@ api.onDidReceiveGlobalSettings(message => {
 });
 api.connect('com.ulanzi.ulanzistudio.orcaprojects');
 setInterval(() => {
-  blinkOff = !blinkOff;
+  rainbowFrame = (rainbowFrame + 1) % RAINBOW_FRAMES;
   for (const [context, settings] of keys) {
     if (settings.active === false) continue;
     const data = source(settings);
-    if (slotProject(data, settings.slot)?.unread === true || settings.lastDimmed) render(context);
+    if (slotProject(data, settings.slot)?.unread === true || settings.lastAnimated) render(context);
   }
-}, 700);
+}, 250);
 api.websocket.on('message', raw => {
   try {
     const message = JSON.parse(String(raw));

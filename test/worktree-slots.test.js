@@ -120,3 +120,8 @@ test('plain terminals do not occupy slots while idle and completed Agents remain
     project('custom', { agents: [{ agentType: 'custom-agent', state: 'working' }] })];
   assert.deepEqual(eligibleWorktrees(rows).map(p => p.repo), ['idle', 'done', 'custom']);
 });
+
+test('unread worktrees (Orca sidebar bell) occupy slots even without terminals', () => {
+  const chat = { worktreeId: 'repo::/chat', unread: true, liveTerminalCount: 0, agents: [{ agentType: 'claude', state: 'done' }] };
+  assert.deepEqual(eligibleWorktrees([chat, { ...chat, worktreeId: 'repo::/read', unread: false }]).map(p => p.worktreeId), ['repo::/chat']);
+});
