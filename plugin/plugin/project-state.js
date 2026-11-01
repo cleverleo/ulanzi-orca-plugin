@@ -48,7 +48,7 @@ export function publicProject(project) {
     displayName: project.displayName || '',
     worktreeName: worktreeName(project),
     environmentName: project.environmentName || '',
-    state: projectState(project), active: !!project.isActive,
+    state: projectState(project), active: !!project.isActive, unread: project.unread === true,
     agents: (project.agents ?? []).map(agent => ({
       type: agent.agentType, state: agentState(agent), paneKey: agent.paneKey,
     })),

@@ -48,7 +48,7 @@ function projectLines(value, max = 16) {
   return chars.length ? [first.trim(), truncate(chars.join('').trim(), max)] : [first.trim()];
 }
 
-export function keyIconSvg({ project, slot, state }) {
+export function keyIconSvg({ project, slot, state, dimmed = false }) {
   const agent = primaryAgent(project || {});
   const type = artworkType(agent?.agentType);
   const types = [...new Set((project?.agents ?? []).map(a => canonicalAgentType(a.agentType)).filter(Boolean))];
@@ -67,10 +67,10 @@ export function keyIconSvg({ project, slot, state }) {
 <g font-family="Arial, PingFang SC, sans-serif" text-anchor="middle">
 ${lines.map((line, i) => `<text x="72" y="${lines.length === 1 ? 60 : 45 + i * 21}" font-size="18" font-weight="bold" fill="#ffffff">${escape(line)}</text>`).join('')}
 ${worktreeLines.map((line, i) => `<text x="72" y="${worktreeLines.length === 1 ? 100 : 87 + i * 21}" font-size="17" font-weight="bold" fill="#ffffff">${escape(line)}</text>`).join('')}
-<rect x="12" y="115" width="120" height="19" rx="7" fill="${color}"/>
-<text x="72" y="130" font-size="12" font-weight="bold" fill="#111827">${slot} · ${escape(t(labels[state] || labels.unknown))}</text>
+<rect x="12" y="115" width="120" height="19" rx="7" fill="${color}"${dimmed ? ' fill-opacity="0.25"' : ''}/>
+<text x="72" y="130" font-size="12" font-weight="bold" fill="${dimmed ? color : '#111827'}">${slot} · ${escape(t(labels[state] || labels.unknown))}</text>
 </g></g>
-<rect x="3" y="3" width="138" height="138" rx="13" fill="none" stroke="${color}" stroke-width="3"/>
+${dimmed ? '' : `<rect x="3" y="3" width="138" height="138" rx="13" fill="none" stroke="${color}" stroke-width="3"/>`}
 </svg>`;
 }
 

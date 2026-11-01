@@ -17,6 +17,7 @@ const sources = new Map();
 const pressed = new Set();
 let globalSettings = {};
 let globalsLoaded = false;
+let blinkOff = false;
 
 function source(settings) {
   const cliPath = settings.cliPath || defaultCli;
@@ -73,10 +74,13 @@ function render(context) {
   const project = slotProject(data, settings.slot);
   const state = data.error || !data.updatedAt ? 'unknown' :
     project ? publicProject(project).state : 'empty';
-  const signature = keyIconSvg({ project, slot: settings.slot, state });
+  // Blink unread worktrees (Orca's sidebar bell) until the user opens them.
+  const dimmed = state !== 'unknown' && project?.unread === true && blinkOff;
+  const signature = keyIconSvg({ project, slot: settings.slot, state, dimmed });
   if (settings.lastRender !== signature) {
     api.setPathIcon(context, writeKeyIcon(signature, context));
     settings.lastRender = signature;
+    settings.lastDimmed = dimmed;
   }
 }
 
@@ -208,6 +212,14 @@ api.onDidReceiveGlobalSettings(message => {
   }
 });
 api.connect('com.ulanzi.ulanzistudio.orcaprojects');
+setInterval(() => {
+  blinkOff = !blinkOff;
+  for (const [context, settings] of keys) {
+    if (settings.active === false) continue;
+    const data = source(settings);
+    if (slotProject(data, settings.slot)?.unread === true || settings.lastDimmed) render(context);
+  }
+}, 700);
 api.websocket.on('message', raw => {
   try {
     const message = JSON.parse(String(raw));
